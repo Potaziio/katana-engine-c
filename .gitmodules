@@ -1,0 +1,6 @@
+[submodule "include/GL"]
+	path = include/GL
+	url = https://github.com/nigels-com/glew.git
+[submodule "include/GLFW"]
+	path = include/GLFW
+	url = https://github.com/glfw/glfw.git
