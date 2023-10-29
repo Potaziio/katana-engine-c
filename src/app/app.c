@@ -12,7 +12,7 @@ struct player player;
 
 void app_start(void)
 {
-	global_engine->config |= ENGINE_SILENCE_ENTITY_LOG;
+	global_engine->config |= ENGINE_SILENCE_ENTITY_LOG | ENGINE_PRINT_FPS;
 	engine_camera.type = ORTHOGRAPHIC;
 
 	if (editing) { 
@@ -21,7 +21,6 @@ void app_start(void)
 	}
 
 	game_map_create(&game_map);
-
 	texture_load(&player.texture, "../src/app/assets/textures/player2.png");
 	player_create(&player);
 	player.transform->position = (struct vector3){rand_int(0, engine_camera.bounds.x), 300.0f, 0.0f};
@@ -36,9 +35,8 @@ void app_update(void)
 	}
 
 	struct vector2 input = {input_get_key(GLFW_KEY_A) ? -1 : input_get_key(GLFW_KEY_D) ? 1 : 0, 0.0f};
-
+    player.delta_move = (struct vector2){input.x * player.speed * global_engine->delta_time, 0.0};
 	player_move_and_collide(&player, &game_map.colliders, GLFW_KEY_SPACE);
-	player.delta_move = (struct vector2){input.x * player.speed * global_engine->delta_time, 0.0};
 }
 
 void app_on_tick(void)

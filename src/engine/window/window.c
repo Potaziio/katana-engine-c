@@ -33,6 +33,7 @@ int window_create(struct window* window)
 	/* glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE); */
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	/* glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); */
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);

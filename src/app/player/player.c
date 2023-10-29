@@ -14,7 +14,7 @@ void player_create(struct player* player)
 
 	player->speed = 600.0f;
 	player->grounded = 0;
-	player->jump_force = 550.0f;
+	player->jump_force = 440.0f;
 	player->velocity.y = 1;
 }
 
@@ -23,7 +23,7 @@ void player_move_and_collide(struct player* player, struct map_colliders* collid
 	player->transform = ENTITY_GET_TRANSFORM(player->id);
 	// GRAVITY
 	if (!player->grounded) 
-		player->velocity.y += GRAVITY;
+		player->velocity.y += GRAVITY * global_engine->delta_time;
 
 	// Jump
 	if (player->grounded && input_get_key_down(jump_key))
