@@ -108,7 +108,7 @@ void map_editor_set_layout(void)
 	texture_load(&cobble_texture, "../src/app/assets/textures/cobble.png");
 	
 	// Here we set memory for our map_string 
-	char map_string[MAP_EDITOR_GRID_HORIZONTAL_LINES * MAP_EDITOR_GRID_VERTICAL_LINES + 1];
+	char map_string[MAP_EDITOR_GRID_HORIZONTAL_LINES * MAP_EDITOR_GRID_VERTICAL_LINES + 2];
 
 	// Read the file
 	io_utils_read_file("../src/app/assets/maps/map1.mp", map_string);

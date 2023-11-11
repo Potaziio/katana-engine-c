@@ -48,8 +48,8 @@ void textured_sprite2d_hashmap_pop(struct textured_sprite2d_hashmap* map, entity
         }
     }
 
-    map->key = (entity*)realloc(map->key, (last_element) * sizeof(entity));
-    map->value = (struct textured_sprite2d*)realloc(map->value, (last_element) * sizeof(struct textured_sprite2d));
+    map->key = (entity*)realloc(map->key, (last_element + 1) * sizeof(entity));
+    map->value = (struct textured_sprite2d*)realloc(map->value, (last_element + 1) * sizeof(struct textured_sprite2d));
 
     map->size--;
 }
@@ -76,6 +76,6 @@ struct textured_sprite2d* textured_sprite2d_hashmap_get(struct textured_sprite2d
         if (map->key[i] == key)
             return &map->value[i];
 
-    return 0;
+    return NULL;
 }
 

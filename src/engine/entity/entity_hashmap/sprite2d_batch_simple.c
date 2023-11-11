@@ -81,6 +81,6 @@ struct sprite2d_batch_simple* sprite2d_batch_simple_hashmap_get(struct sprite2d_
         if (map->key[i] == key)
             return &map->value[i];
 
-    return 0;
+    return NULL;
 }
 

@@ -15,13 +15,16 @@ static int input_keys_pressed[KEY_NUMBER];
 static int input_keys_held[KEY_NUMBER];
 static int input_mouse_buttons_pressed[BUTTON_NUMBER];
 static int input_mouse_buttons_held[BUTTON_NUMBER];
+static unsigned int input_text_stream;
 
 static struct vector2 mouse_pos;
 
 void input_key_callback(GLFWwindow* window, int key, int scancode, int action , int mods);
+void input_text_stream_callback(GLFWwindow* window, unsigned int character_callback);
 int input_get_key_down(int key);
 int input_get_key(int key);
 void input_reset_key_pressed_array(void);
+int input_get_text_stream(void);
 
 void input_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void input_cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);

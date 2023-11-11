@@ -20,11 +20,11 @@ void camera_update(struct camera* camera)
 
 	switch(camera->type)
 	{
-		case ORTHOGRAPHIC:
+		case CAMERA_ORTHOGRAPHIC:
 			glm_ortho(0.0f, camera->bounds.x, camera->bounds.y, 
 					0.0f, 0.0f, 1000.0f, camera->projection_mat);
 			break;
-		case PERSPECTIVE:
+		case CAMERA_PERSPECTIVE:
 			glm_perspective(glm_rad(75.0f), camera->bounds.x / camera->bounds.y, 
 					0.1f, 10000.0f, camera->projection_mat);
 			break;

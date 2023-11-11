@@ -33,7 +33,7 @@ int window_create(struct window* window)
 	/* glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE); */
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    /* glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); */
 	/* glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); */
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
 	glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
@@ -45,6 +45,8 @@ int window_create(struct window* window)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	window->glfw_window = glfwCreateWindow(window->width, window->height, window->title, NULL, NULL);
+
+	window->glfw_monitor = glfwGetPrimaryMonitor();
 
 
 	if (!window->glfw_window)
@@ -75,6 +77,7 @@ int window_create(struct window* window)
 	glfwSetCursorPosCallback(window->glfw_window, input_cursor_pos_callback);
 	glfwSetWindowMaximizeCallback(window->glfw_window, window_maximize_callback);
 	glfwSetMouseButtonCallback(window->glfw_window, input_mouse_button_callback);
+	glfwSetCharCallback(window->glfw_window, input_text_stream_callback);
 
 	logger_log_string(LOG, "Window created\n\n");
 	printf("Title: [\"%s\"]\nDimensions: [%d, %d]\nColor: [%d, %d, %d, %d]\n\n", window->title, window->width, window->height, RGBA_UNPACK(window->color));
@@ -100,6 +103,29 @@ void window_end_frame(struct window* window)
 	// We reset the window events
 	memset(window->events, 0, sizeof(int) * WINDOW_EVENTS_SIZE);
 }
+
+void window_toggle_fullscreen(struct window* window)
+{
+	if (window->fullscreen)
+	{
+		glfwSetWindowMonitor(window->glfw_window, NULL,  0, 0, window->width, window->height, 75); 
+		window->fullscreen = 0;
+	} 
+	else 
+	{
+		glfwSetWindowMonitor(window->glfw_window, window->glfw_monitor, 0, 0, window->width, window->height, 75); 
+		window->fullscreen = 1;
+	}
+
+
+	window->events[WINDOW_RESIZE_EVENT] = 1;
+}
+
+void window_close(struct window* window)
+{
+	glfwSetWindowShouldClose(window->glfw_window, GLFW_TRUE);
+}
+
 
 int window_should_close(struct window* window)
 {

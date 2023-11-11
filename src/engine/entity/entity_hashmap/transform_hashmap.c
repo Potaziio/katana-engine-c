@@ -45,8 +45,8 @@ void transform_hashmap_pop(struct transform_hashmap* map, entity key)
 
     map->size--;
 
-    map->key = (entity*)realloc(map->key, map->size * sizeof(entity));
-    map->value = (struct transform*)realloc(map->value, map->size * sizeof(struct transform));
+    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
+    map->value = (struct transform*)realloc(map->value, (map->size + 1) * sizeof(struct transform));
 
 }
 
@@ -63,6 +63,6 @@ struct transform* transform_hashmap_get(struct transform_hashmap* map, entity ke
         if (map->key[i] == key)
             return &map->value[i];
 
-    return 0;
+    return NULL;
 }
 

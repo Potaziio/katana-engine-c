@@ -14,16 +14,28 @@ void input_key_callback(GLFWwindow* window, int key, int scancode, int action , 
 	}
 }
 
+void input_text_stream_callback(GLFWwindow* window, unsigned int character_callback)
+{
+	input_text_stream = character_callback;
+}
+
+
 void input_reset_key_pressed_array(void)
 {
 	for (int i = 0; i < KEY_NUMBER; i++)
-		input_keys_pressed[i] = 0;	
+		input_keys_pressed[i] = 0;
+
+	input_text_stream = 0;
 }
 
 int input_get_key_down(int key)
 { return input_keys_pressed[key]; }
 int input_get_key(int key)
 { return input_keys_held[key]; }
+
+int input_get_text_stream(void)
+{ return input_text_stream; }
+
 
 void input_hide_cursor(int lever, GLFWwindow* window)
 {

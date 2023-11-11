@@ -1,8 +1,10 @@
 #include "engine.h"
 
+// TODO: Separate this by files (Render, ECS)
+
 struct engine* global_engine;
 struct camera engine_camera;
-int engine_fps;
+int engine_fps_counter;
 
 void engine_app_start_callback_func(struct engine* engine, void (*func)(void))
 { engine->app_start_func = func; }
@@ -16,6 +18,9 @@ void engine_app_end_callback_func(struct engine* engine, void (*func)(void))
 void engine_app_tick_update_callback_func(struct engine *engine, void (*func)(void))
 { engine->app_on_tick_func = func; } 
 
+void engine_app_preload_callback_func(struct engine* engine, void (*func)(void))
+{ engine->app_engine_preload_func = func; }
+
 int engine_init(struct engine* engine_ptr)
 {	
 	logger_log_string(LOG, "Creating window...\n");
@@ -27,14 +32,20 @@ int engine_init(struct engine* engine_ptr)
 	engine_ptr->delta_time = 0.0f;
 
 	engine_camera.position = (struct vector3){0.0f, 0.0f, 0.0f};
+	engine_camera.type = CAMERA_ORTHOGRAPHIC;
 
 	engine_camera.bounds = (struct vector2){engine_ptr->engine_window.width, engine_ptr->engine_window.height};
+
+	_engine_default_font = (struct font*) malloc(sizeof(struct font));
 
 	// Allocate memory for global shaders
 	_render_default_shader = (struct shader*) malloc(sizeof(struct shader));
 	_render_default_tex_shader = (struct shader*) malloc(sizeof(struct shader));
 	_render_line_shader = (struct shader*) malloc(sizeof(struct shader));
 	_render_batch_simple_shader = (struct shader*) malloc(sizeof(struct shader));
+	_render_font_shader = (struct shader*) malloc(sizeof(struct shader));
+
+	_render_font_default_texture = (struct texture*) malloc(sizeof(struct texture));
 
 	engine_ptr->config = 0;
 
@@ -54,6 +65,16 @@ int engine_init(struct engine* engine_ptr)
 			"../src/engine/assets/shaders/default_batch_simple_vertex.glsl",
 			"../src/engine/assets/shaders/default_batch_simple_fragment.glsl");
 
+	texture_load(_render_font_default_texture, "../src/engine/assets/fonts/librefont.png");
+
+	shader_load_and_compile(_render_font_shader, "../src/engine/assets/shaders/default_font_vertex.glsl", "../src/engine/assets/shaders/default_font_fragment.glsl");
+
+	_engine_default_font->bitmap = _render_font_default_texture;
+	_engine_default_font->char_padding = -3;
+	_engine_default_font->image_width = texture_get_width(*_render_font_default_texture);
+	_engine_default_font->image_height = texture_get_height(*_render_font_default_texture);
+	_engine_default_font->scale = 16;
+
 	global_engine = engine_ptr;
 
 	init_random(time(NULL));
@@ -64,11 +85,21 @@ int engine_init(struct engine* engine_ptr)
 	textured_sprite2d_hashmap_create(&engine_ptr->textured_sprite2d_components);
 	sprite2d_batch_simple_hashmap_create(&engine_ptr->sprite2d_batch_simple_components);
 	debug_line_hashmap_create(&engine_ptr->debug_line_components);
+	script_hashmap_create(&engine_ptr->script_components);
 
 	engine_ptr->entity_num = 0;
 
 	for (int i = 0; i < ENGINE_MAX_ENTITIES; i++)
 		engine_ptr->entities[i] = 0;
+
+	logger_log_string(LOG, "Creating audio manager\n");
+	_engine_default_audio_manager = audio_manager_create();	
+
+	if (engine_ptr->app_start_func == NULL)
+	{
+		logger_log_string(ERROR, "No app start function set, quitting engine\n");
+		return -1; 
+	}
 
 	// Run this before returning to make sure everything is allocated and initialized
 	engine_ptr->app_start_func();
@@ -88,6 +119,12 @@ int engine_init(struct engine* engine_ptr)
 	for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
 		render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
 
+	for (int i = 0; i < engine_ptr->script_components.size; i++)
+		script_system_start(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
+
+	if (engine_ptr->app_engine_preload_func != NULL)
+		engine_ptr->app_engine_preload_func();
+
 	return status;
 }
 
@@ -102,10 +139,15 @@ void engine_update(struct engine* engine_ptr)
 
 	while (!window_should_close(&engine_ptr->engine_window))
 	{
+		if (input_get_key(GLFW_KEY_L))
+			engine_ptr->delta_time *= 0.1f;
+
+		window_begin_frame(&engine_ptr->engine_window);
+
 		// We leave this at the beggining of the loop
 		double current_time = engine_get_mills();
 
-		engine_fps++;
+		engine_fps_counter++;
 
 		for (int i = 0; i < engine_ptr->sprite2d_components.size; i++)
 			render_system_init_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
@@ -119,11 +161,15 @@ void engine_update(struct engine* engine_ptr)
 		for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
 			render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
 
-		window_begin_frame(&engine_ptr->engine_window);
+		for (int i = 0; i < engine_ptr->script_components.size; i++)
+			script_system_update(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
+
 
 		// We update the camera bounds to the screen dimensions here
-		engine_camera.bounds = (struct vector2){engine_ptr->engine_window.width,
-												engine_ptr->engine_window.height};
+
+		if (engine_ptr->config & ENGINE_UPDATE_CAMERA_BOUNDS)
+			engine_camera.bounds = (struct vector2){engine_ptr->engine_window.width, engine_ptr->engine_window.height};
+
 		// Then we update the camera matrices
 		camera_update(&engine_camera);
 
@@ -152,24 +198,16 @@ void engine_update(struct engine* engine_ptr)
 				_render_batch_simple_shader, "projection", "view");
 		shader_detach(_render_batch_simple_shader);
 
-		// Render here
-		engine_ptr->app_update_func();
+		shader_use(_render_font_shader);
+		camera_send_matrices_to_shader(&engine_camera, _render_font_shader, "projection", "view");
+		shader_detach(_render_font_shader);
 
 		// Render all entities with components of type sprite2d_batch_simple
 		shader_use(_render_batch_simple_shader);
 		for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 			render_system_render_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 		shader_detach(_render_batch_simple_shader);
-
-		// Render all lines
-		shader_use(_render_line_shader);
-		for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
-		{
-			render_system_update_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
-			render_system_render_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
-		}
-		shader_detach(_render_line_shader);
-
+	
 		// Render all entities with components of type textured_sprite
 		shader_use(_render_default_tex_shader);
 		for (int i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
@@ -181,6 +219,25 @@ void engine_update(struct engine* engine_ptr)
 		for (int i = 0; i < engine_ptr->sprite2d_components.size; i++)
 			render_system_render_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 		shader_detach(_render_default_shader);
+
+		// Render all lines
+		shader_use(_render_line_shader);
+		for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
+		{
+			render_system_update_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
+			render_system_render_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
+		}
+		shader_detach(_render_line_shader);
+
+		// Render here
+
+
+		if (engine_ptr->app_update_func != NULL)
+			engine_ptr->app_update_func();
+		else 
+		{
+			logger_log_string(ERROR, "No app update function set\n");
+		}
 
 		// Exit on escape
 		if (input_get_key_down(GLFW_KEY_ESCAPE))
@@ -198,9 +255,11 @@ void engine_update(struct engine* engine_ptr)
 		if (current_time - prev_time >= 1.0f)
 		{
 			if (engine_ptr->config & ENGINE_PRINT_FPS)
-				logger_log_float(LOG, engine_get_fps());
+				logger_log_float(LOG, engine_fps_counter);
 
-			engine_fps = 0;
+			engine_ptr->fps = engine_fps_counter;
+
+			engine_fps_counter = 0;
 			prev_time = current_time;
 		}
 
@@ -209,39 +268,57 @@ void engine_update(struct engine* engine_ptr)
 		// Runs every 20 frames 
 		if (engine_ptr->ticks >= TICK_TIME)
 		{
-			engine_ptr->app_on_tick_func();
+			if (engine_ptr->app_on_tick_func != NULL)
+				engine_ptr->app_on_tick_func();
+
 			engine_ptr->ticks = 0;
 		}
 	}
+	
 }
+
+
+// TODO: Deltatime: this works but its not the best (or flexible) way in terms of compatibility with other devices
 
 void engine_time_end_frame(struct engine* engine_ptr, float* start_time)
 {
-	engine_ptr->delta_time = engine_get_mills() - *start_time;
-	*start_time = engine_get_mills();
+	engine_ptr->delta_time = 1 / 60.0f;
+	/* engine_ptr->delta_time = engine_get_mills() - *start_time; */
+	/* *start_time = engine_get_mills(); */
 }
 
 int engine_end(struct engine* engine_ptr)
 {
 	// Free all memory allocated by engine
+	
 	logger_log_string(WARNING, "Closing engine...\n");
+
 	window_free_memory(&engine_ptr->engine_window);
 
 	shader_free_memory(_render_default_shader);
 	shader_free_memory(_render_line_shader);
 	shader_free_memory(_render_default_tex_shader);
 	shader_free_memory(_render_batch_simple_shader);
+	shader_free_memory(_render_font_shader);
 
 	free(_render_default_shader);
 	free(_render_default_tex_shader);
 	free(_render_line_shader);
 	free(_render_batch_simple_shader);
+	free(_render_font_shader);
+
+	texture_free(_render_font_default_texture);
+	free(_engine_default_font);
+
+	free(_engine_default_audio_manager->engine);
+	free(_engine_default_audio_manager);
 
 	transform_hashmap_free(&engine_ptr->transform_components);
 	sprite2d_hashmap_free(&engine_ptr->sprite2d_components);
 	textured_sprite2d_hashmap_free(&engine_ptr->textured_sprite2d_components);
 	sprite2d_batch_simple_hashmap_free(&engine_ptr->sprite2d_batch_simple_components);
 	debug_line_hashmap_free(&engine_ptr->debug_line_components);
+	script_hashmap_free(&engine_ptr->script_components);
 
 	engine_ptr->app_end_func();
 		
@@ -314,6 +391,13 @@ entity engine_create_entity(struct engine* engine, unsigned int components)
 		struct debug_line* line = ENTITY_GET_DEBUG_LINE(ent);
 		*line = (struct debug_line){0};
 	}
+	if (components & SCRIPT)
+	{
+		if (!(engine->config & ENGINE_SILENCE_ENTITY_LOG)) printf("	Attaching script\n");
+		script_hashmap_add(&engine->script_components, ent);
+		struct script* script = ENTITY_GET_SCRIPT(ent);
+		*script = (struct script){.start=NULL, .update=NULL, .data=NULL};
+	}
 
 	engine->entity_num++;
 
@@ -379,6 +463,14 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}	
 	}
+	for (int i = 0; i < engine->script_components.size; i++)
+	{
+		if (engine->script_components.key[i] == e)
+		{
+			components |= SCRIPT;
+			break;
+		}
+	}
 
 	// We remove all the components found
 	if (components & TRANSFORM)
@@ -391,6 +483,8 @@ void engine_pop_entity(struct engine *engine, entity e)
 		sprite2d_batch_simple_hashmap_pop(&engine->sprite2d_batch_simple_components, e);
 	if (components & DEBUG_LINE)
 		debug_line_hashmap_pop(&engine->debug_line_components, e);
+	if (components & SCRIPT)
+		script_hashmap_pop(&engine->script_components, e);
 
 	engine->entities[entity_index] = 0;
 	engine->entity_num--;
@@ -415,6 +509,8 @@ void* engine_get_entity_component(struct engine* engine, entity ent, unsigned in
 		return (void*)sprite2d_batch_simple_hashmap_get(&engine->sprite2d_batch_simple_components, ent);
 	else if (component & DEBUG_LINE)
 		return (void*)debug_line_hashmap_get(&engine->debug_line_components, ent);
+	else if (component & SCRIPT)
+		return (void*)script_hashmap_get(&engine->script_components, ent);
 	
 	return NULL;
 }
@@ -430,33 +526,4 @@ int engine_has_entity(struct engine* engine, entity e)
 
 double engine_get_mills(void)
 { return glfwGetTime(); }
-
-int engine_get_fps(void)
-{ return engine_fps; }
-
-int frame_timer_add_and_respond(struct frame_timer* timer)
-{
-	if (timer->frames < timer->target)
-	{
-		timer->frames++;
-		return 0;
-	}
-	else 
-		timer->frames = 0;
-
-	return 1;
-}
-
-int timer_add_and_respond(struct timer* timer)
-{
-	if (timer->timer < timer->target)
-	{
-		timer->timer += global_engine->delta_time * 1000;
-		return 0;
-	}
-	else 
-		timer->timer = 0;
-
-	return 1;
-}
 

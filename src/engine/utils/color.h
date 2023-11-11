@@ -14,6 +14,7 @@
 #define RGBA_GRAY 127, 127, 127, 255
 #define RGBA_SKY_BLUE 135, 206, 235, 255
 #define RGBA_NORMALIZED_FLOAT(x) ((float)x.r / 255.0f), ((float)x.g / 255.0f), ((float)x.b / 255.0f), ((float)x.a / 255.0f)
+#define RGBA_NORMALIZED_INT(x) (int)(x.r / 255), (int)(x.g / 255), (int)(x.b / 255), (int)(x.a / 255)
 #define RGBA_NORMALIZED(x) (x.r / 255), (x.g / 255), (x.b / 255), (x.a / 255)
 #define RGBA_UNPACK(x) x.r, x.g, x.b, x.a
 

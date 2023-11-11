@@ -9,6 +9,7 @@ struct player
 	entity id;
 	struct transform* transform;
 	struct textured_sprite2d* sprite;
+	struct script* script;
 	struct texture texture;
 	struct aabb collider;
 	struct vector2 velocity;

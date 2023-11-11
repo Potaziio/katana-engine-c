@@ -1,5 +1,4 @@
 #include "render.h"
-#include <complex.h>
 
 // This is just some opengl boiler plate code but we follow the same pattern when rendering something.
 // First we generate data, vbos, vaos, ebos (if necessary)
@@ -18,10 +17,18 @@ struct shader* _render_default_shader;
 struct shader* _render_default_tex_shader;
 struct shader* _render_line_shader;
 struct shader* _render_batch_simple_shader;
+struct shader* _render_font_shader;
+struct texture* _render_font_default_texture;
 
 void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map,  entity entity)
 {
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
+
+	if (sprite == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
 
 	if (sprite->was_initialized) return;
 
@@ -31,16 +38,28 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
 		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
 		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
-	} else if (sprite->config & SPRITE2D_TOP_LEFT)
+	} 
+	else if (sprite->config & SPRITE2D_TOP_LEFT)
 	{
 		sprite->vertices[0].position = (struct vector3){0.0f, 0.0f, 0.0f};
 		sprite->vertices[1].position = (struct vector3){1.0f, 0.0f, 0.0f};
 		sprite->vertices[2].position = (struct vector3){0.0f, 1.0f, 0.0f};
 		sprite->vertices[3].position = (struct vector3){1.0f, 1.0f, 0.0f};
+	} 
+	else
+	{
+		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
+		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
+		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
+		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+
+		logger_log_string(WARNING, "Origin configuration for sprite is bad, generating sprite at center (default)\n");
+		sprite->config |= SPRITE2D_CENTERED;
 	}
+
 	
 	for (int i = 0; i < 4; i++)
-		sprite->vertices[i].color = (struct rgba_color){RGBA_NORMALIZED(sprite->color)};
+		sprite->vertices[i].color = (struct rgba_color){RGBA_NORMALIZED_INT(sprite->color)};
 
 	sprite->indices[0] = 0;
 	sprite->indices[1] = 1;
@@ -70,9 +89,15 @@ void render_system_render_sprite2d(struct transform_hashmap* transform_map, stru
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
 
-	vec3 glm_pos_vec = {transform->position.x, transform->position.y, transform->position.z};
-	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, transform->scale.z};
-	vec3 glm_rotation_vec = {transform->rotation.x, transform->rotation.y, transform->rotation.z};
+	if (sprite == NULL || transform == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
+	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
+	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
+	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_z};
 
 	glm_mat4_identity(transform->matrix);
 	glm_translate(transform->matrix, glm_pos_vec);
@@ -106,6 +131,12 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
 
+	if (sprite == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
 	for (int i = 0; i < SPRITE2D_VERTEX_NUM; i++)
 		sprite->vertices[i].color = (struct rgba_color){RGBA_NORMALIZED(sprite->color)};
 
@@ -117,6 +148,12 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 void render_system_init_textured_sprite2d(struct transform_hashmap* transform_map, struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
+
+	if (sprite == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
 
 	if (sprite->was_initialized) return;
 
@@ -133,6 +170,17 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 		sprite->vertices[2].position = (struct vector3){0.0f, 1.0f, 0.0f};
 		sprite->vertices[3].position = (struct vector3){1.0f, 1.0f, 0.0f};
 	}
+	else
+	{
+		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
+		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
+		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
+		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+
+		logger_log_string(WARNING, "Origin configuration for sprite is bad, generating sprite at center (default)\n");
+		sprite->config |= SPRITE2D_CENTERED;
+	}
+
 
 	sprite->vertices[0].tex_coords = (struct vector2){0.0f, 1.0f};
 	sprite->vertices[1].tex_coords = (struct vector2){1.0f, 1.0f};
@@ -155,8 +203,8 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 	glGenBuffers(1, &sprite->ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite->ebo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4, sprite->vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4, sprite->vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(3 * sizeof(float)));
@@ -173,9 +221,15 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
 
-	vec3 glm_pos_vec = {transform->position.x, transform->position.y, transform->position.z};
-	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, transform->scale.z};
-	vec3 glm_rotation_vec = {transform->rotation.x, transform->rotation.y, transform->rotation.z};
+	if (sprite == NULL || transform == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
+	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
+	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
+	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_z};
 
 	glm_mat4_identity(transform->matrix);
 	glm_translate(transform->matrix, glm_pos_vec);
@@ -201,10 +255,52 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 	texture_unbind();
 }
 
+void render_textured_sprite_set_sprite(struct animation animation, int index, struct textured_sprite2d* sprite)
+{
+	glBindVertexArray(sprite->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, sprite->vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite->ebo);
+
+	sprite->vertices[0].tex_coords = (struct vector2){0.0f + (index * ((animation.sprite_width + animation.sprite_padding) / animation.spritesheet_width)), 1.0f};
+	sprite->vertices[1].tex_coords = (struct vector2){sprite->vertices[0].tex_coords.x + ((animation.sprite_width - animation.sprite_padding) / animation.spritesheet_width), 1.0f};
+	sprite->vertices[2].tex_coords = (struct vector2){sprite->vertices[0].tex_coords.x, 0.0f};
+	sprite->vertices[3].tex_coords = (struct vector2){sprite->vertices[1].tex_coords.x, 0.0f};
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(struct textured_rectangle_sprite_vertex) * 4, sprite->vertices);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void animation_cycle_through(struct animation* animation, struct textured_sprite2d* sprite, struct frame_timer* timer)
+{
+	if (animation->current_index < animation->start)
+		animation->current_index = animation->start;
+			
+	int x = animation->current_index;
+
+	if (frame_timer_add_and_respond(timer))
+	{
+		render_textured_sprite_set_sprite(*animation, x, sprite);
+
+		if (animation->current_index < animation->end)
+			animation->current_index++;
+		else 
+			animation->current_index = animation->start;
+	}
+}
+
+
 // Vertices have to be allocated already
 void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
+
+	if (batch == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
 
 	if (batch->was_initialized) return;
 
@@ -232,6 +328,12 @@ void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_has
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
 
+	if (batch == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
 	glBindVertexArray(batch->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->ebo);
@@ -250,6 +352,12 @@ void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_has
 void render_system_init_debug_line(struct debug_line_hashmap* line_map, entity entity)
 {
 	struct debug_line* line = debug_line_hashmap_get(line_map, entity);
+
+	if (line == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
 
 	if (line->was_initialized) return;
 
@@ -281,6 +389,12 @@ void render_system_update_debug_line(struct debug_line_hashmap* line_map, entity
 void render_system_render_debug_line(struct debug_line_hashmap* line_map, entity entity)
 {
 	struct debug_line* line = debug_line_hashmap_get(line_map, entity);
+
+	if (line == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, line->vbo);
 	glBindVertexArray(line->vao);
@@ -387,4 +501,5 @@ void render_free_debug_aabb_collider(struct aabb aabb, struct debug_line* lines)
 	for (int i = 0; i < 4; i++)
 		render_free_debug_line(&lines[i]);
 }
+
 

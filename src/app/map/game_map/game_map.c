@@ -3,7 +3,7 @@
 void game_map_create(struct game_map* game_map)
 {
 	game_map->map_path = "../src/app/assets/maps/map1.mp";
-	game_map->background_path = "../src/app/assets/textures/background1.png";
+	game_map->background_path = "../src/app/assets/textures/background2.png";
 
 	tile_textures[0] = &grass_texture;
 	tile_textures[1] = &cobble_texture;
@@ -16,10 +16,12 @@ void game_map_create(struct game_map* game_map)
 	texture_load(&cobble_texture, "../src/app/assets/textures/cobble.png");
 
 	// Here we set memory for our map_string 
-	char map_string[MAP_EDITOR_GRID_HORIZONTAL_LINES * MAP_EDITOR_GRID_VERTICAL_LINES + 1];
+	char map_string[MAP_EDITOR_GRID_HORIZONTAL_LINES * MAP_EDITOR_GRID_VERTICAL_LINES + 2];
 
 	// Read the file
 	io_utils_read_file(game_map->map_path, map_string);
+
+	/* map_string[MAP_EDITOR_GRID_HORIZONTAL_LINES * MAP_EDITOR_GRID_VERTICAL_LINES + 1] = '\0'; */
 
 	entity background = engine_create_entity(global_engine, TRANSFORM | TEXTURED_SPRITE2D);
 	struct texture bg;

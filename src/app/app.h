@@ -8,5 +8,6 @@ void app_start(void);
 void app_update(void);
 void app_on_tick(void);
 void app_end(void);
+void app_preload(void);
 
 #endif

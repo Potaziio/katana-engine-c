@@ -49,9 +49,8 @@ void sprite2d_hashmap_pop(struct sprite2d_hashmap* map, entity key)
 
     map->size--;
 
-    map->key = (entity*)realloc(map->key, map->size * sizeof(entity));
-    map->value = (struct sprite2d*)realloc(map->value, map->size * sizeof(struct sprite2d));
-
+    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
+    map->value = (struct sprite2d*)realloc(map->value, (map->size + 1) * sizeof(struct sprite2d));
 }
 
 void sprite2d_hashmap_free(struct sprite2d_hashmap* map)
@@ -75,6 +74,6 @@ struct sprite2d* sprite2d_hashmap_get(struct sprite2d_hashmap* map, entity key)
         if (map->key[i] == key)
             return &map->value[i];
 
-    return 0;
+    return NULL;
 }
 

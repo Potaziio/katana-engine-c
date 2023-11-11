@@ -7,6 +7,8 @@
 #define TEXTURED_SPRITE2D 8 // 2^3
 #define SPRITE2D_BATCH_SIMPLE 16 // 2^4
 #define DEBUG_LINE 32 // 2^5
+#define SCRIPT 64 // 2^6
+#define FONT 128 // 2^7
 
 #define SPRITE2D_CENTERED 1
 #define SPRITE2D_TOP_LEFT 2
@@ -23,10 +25,10 @@ typedef unsigned int entity;
 
 struct transform 
 {
-    struct vector3 position;
-    struct vector3 scale;
-    struct vector3 rotation;
+    struct vector2 position;
+    struct vector2 scale;
     float rotation_angle;
+    unsigned char rotation_z;
     mat4 matrix;
 };
 
@@ -84,6 +86,14 @@ struct sprite2d_batch_simple
     struct rgba_color color;
     int batch_size;
     char was_initialized;
+};
+
+struct script 
+{
+    entity entity;
+    void* data;
+    void (*start)(entity e);
+    void (*update)(entity e);
 };
 
 #endif

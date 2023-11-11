@@ -15,8 +15,8 @@ extern vec3 _camera_front;
 
 enum CAMERA_TYPE
 {
-	ORTHOGRAPHIC,
-	PERSPECTIVE,
+	CAMERA_ORTHOGRAPHIC,
+	CAMERA_PERSPECTIVE,
 };
 
 struct camera
