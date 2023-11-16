@@ -153,6 +153,8 @@ void text_generate_data(struct ui_text* text)
 
 void ui_text_mod(struct ui_text* text, const char* str, int32_t length)
 {
+	if ((text->str != NULL) && !strcmp(text->str, str) && length == text->str_len) return;
+
 	size_t t_str_size = sizeof(char) * text->str_len + 1;
 
 	text->str = (char*)memset(text->str, 0, t_str_size);

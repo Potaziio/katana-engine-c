@@ -43,6 +43,7 @@ int main(void)
 struct ui_text* text;
 struct map* map;
 struct player player;
+char dev_text[100];
 
 void app_start(void)
 {
@@ -54,11 +55,10 @@ void app_start(void)
 	texture_load(&map_atlas, "../src/assets/map_atlas.png");
 	texture_load(&background_texture, "../src/assets/background.png");
 
-	char* dev_text = "KATANA ENGINE DEV 1.0";
-	text = ui_text_init(_engine_default_font, (struct rgba_color){RGBA_BLACK}, vector2(5.0f, 5.0f), 0.135f, dev_text, strlen(dev_text));
-
-	map = map_create(10, 10, vector2(0.0f, 600.0f));
+	map = map_create(80, 80, vector2(0.0f, 600.0f));
 	player = player_create(vector2(ENGINE_WINDOW_CENTER), map);
+
+	text = ui_text_init(_engine_default_font, (struct rgba_color){RGBA_BLACK}, vector2(5.0f, 5.0f), 0.135f, "", 0);
 }
 
 void app_update(void)
@@ -69,6 +69,9 @@ void app_update(void)
 
 void app_on_tick(void)
 {
+	sprintf(dev_text, "KATANA ENGINE DEV 1.0                          MIDAS CURSE\nCHUNKS: %d\nFPS: %d", map->chunk_num, global_engine->fps);
+
+	ui_text_mod(text, dev_text, strlen(dev_text));
 }
 
 void app_end(void)
