@@ -37,13 +37,13 @@
 struct animation 
 {
     struct frame_timer clock; // how long each sprite is going to be on the screen for 
-    int sprite_num; // number of sprites in spritesheet
-    float sprite_padding; // padding between sprites in spritesheet
-    float sprite_width;
-    float spritesheet_width;
-    int current_index;
-    int start;
-    int end;
+    uint32_t sprite_num; // number of sprites in spritesheet
+    float32_t sprite_padding; // padding between sprites in spritesheet
+    float32_t sprite_width;
+    float32_t spritesheet_width;
+    uint32_t current_index;
+    uint32_t start;
+    uint32_t end;
 };
 
 extern struct shader* _render_default_shader;
@@ -89,7 +89,7 @@ void render_free_debug_aabb_collider(struct aabb aabb, struct debug_line* lines)
 
 // Sprite animations, this is to be used by textured sprites
 
-void render_textured_sprite_set_sprite(struct animation animation, int index, struct textured_sprite2d* sprite); 
+void render_textured_sprite_set_sprite(struct animation animation, uint32_t index, struct textured_sprite2d* sprite); 
 void animation_cycle_through(struct animation* animation, struct textured_sprite2d* sprite, struct frame_timer* timer);
 
 #endif 

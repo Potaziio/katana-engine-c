@@ -20,9 +20,9 @@ struct font_sprite_vertex{
 struct font
 {
     // Holds data of fnt file
-    int data[950];
-    int image_width, image_height;
-    int char_padding;
+    int32_t data[950];
+    int32_t image_width, image_height;
+    int32_t char_padding;
     struct texture* bitmap;
 };
 
@@ -31,21 +31,21 @@ struct ui_text
     // Actual text stuff
     struct font* font;
     char* str;
-    int str_len;
+    int32_t str_len;
     struct vector2 position;
     float scale; // Scale of each letter
 
     struct rgba_color color;
 
     // OpenGL rendering stuff
-    unsigned int vao, ebo, vbo;
+    uint32_t vao, ebo, vbo;
     struct font_sprite_vertex* vertices;
-    unsigned int* indices;
+    uint32_t* indices;
 };
 
-struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, int len);
+struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, int32_t len);
 void ui_font_get_fnt_data(struct font* font, char* file);
-void ui_text_mod(struct ui_text* text, const char* str, int length);
+void ui_text_mod(struct ui_text* text, const char* str, int32_t length);
 void ui_text_render(struct ui_text* text);
 void ui_text_free(struct ui_text* text);
 

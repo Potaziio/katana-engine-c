@@ -21,14 +21,14 @@
 
 #include "../../../include/cglm/include/cglm/mat4.h"
 
-typedef unsigned int entity;
+typedef uint32_t entity;
 
 struct transform 
 {
     struct vector2 position;
     struct vector2 scale;
-    float rotation_angle;
-    unsigned char rotation_z;
+    float32_t rotation_angle;
+    uint8_t rotation_z;
     mat4 matrix;
 };
 
@@ -40,12 +40,12 @@ struct rectangle_sprite_vertex
 
 struct sprite2d 
 {
-    unsigned int vao, vbo, ebo;
+    uint32_t vao, vbo, ebo;
     struct rgba_color color;
     struct rectangle_sprite_vertex vertices[4];
-    unsigned int indices[6];
-    char was_initialized;
-    unsigned char config;
+    uint32_t indices[6];
+    int8_t was_initialized;
+    uint8_t config;
 
 };
 
@@ -57,9 +57,9 @@ struct line_vertex
 
 struct debug_line
 {
-    unsigned int vao, vbo;
+    uint32_t vao, vbo;
     struct line_vertex vertices[2];
-    char was_initialized;
+    uint8_t was_initialized;
 };
 
 struct textured_rectangle_sprite_vertex
@@ -70,32 +70,32 @@ struct textured_rectangle_sprite_vertex
 
 struct textured_sprite2d
 {
-    unsigned int vao, vbo, ebo;
+    uint32_t vao, vbo, ebo;
     struct textured_rectangle_sprite_vertex vertices[4];
-    unsigned int indices[6];
-    struct texture texture;
-    char was_initialized;
-    unsigned char config;
+    uint32_t indices[6];
+    struct texture* texture;
+    uint8_t was_initialized;
+    uint8_t config;
 };
 
 struct sprite2d_batch_simple 
 {
-    unsigned int vao, vbo, ebo;
+    uint32_t vao, vbo, ebo;
     struct rectangle_sprite_vertex* vertices;
-    unsigned int* indices;
+    uint32_t* indices;
     struct rgba_color color;
-    int batch_size;
-    char was_initialized;
+    uint32_t batch_size;
+    uint8_t was_initialized;
 };
 
 struct sprite2d_batch_complex
 {
-    unsigned int vao, vbo, ebo;
+    uint32_t vao, vbo, ebo;
     struct textured_rectangle_sprite_vertex* vertices;
-    unsigned int* indices;
+    uint32_t* indices;
     struct texture* atlas;
-    int batch_size;
-    char was_initialized;
+    uint32_t batch_size;
+    uint8_t was_initialized;
 };
 
 struct script 

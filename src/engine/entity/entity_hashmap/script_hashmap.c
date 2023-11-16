@@ -18,10 +18,10 @@ void script_hashmap_add(struct script_hashmap* map, entity key)
 
 void script_hashmap_pop(struct script_hashmap* map, entity key)
 {
-    int entity_found = 0;
-    int index = 0;
+    int32_t entity_found = 0;
+    int32_t index = 0;
 
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
     {
         if (map->key[i] == key)
         {
@@ -32,11 +32,11 @@ void script_hashmap_pop(struct script_hashmap* map, entity key)
 
     if (!entity_found) return;
 
-    int last_element = map->size - 1;
+    int32_t last_element = map->size - 1;
 
     if (index != last_element)
     {
-        for (int i = index + 1; i < map->size; i++)
+        for (uint32_t i = index + 1; i < map->size; i++)
         {
             map->value[i - 1] = map->value[i];
             map->key[i - 1] = map->key[i];
@@ -65,7 +65,7 @@ void script_hashmap_free(struct script_hashmap* map)
 
 struct script* script_hashmap_get(struct script_hashmap* map, entity key)
 {
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
 

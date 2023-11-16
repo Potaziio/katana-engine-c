@@ -4,7 +4,7 @@
 
 struct engine* global_engine;
 struct camera engine_camera;
-int engine_fps_counter;
+int32_t engine_fps_counter;
 
 void engine_app_start_callback_func(struct engine* engine, void (*func)(void))
 { engine->app_start_func = func; }
@@ -21,7 +21,7 @@ void engine_app_tick_update_callback_func(struct engine *engine, void (*func)(vo
 void engine_app_preload_callback_func(struct engine* engine, void (*func)(void))
 { engine->app_engine_preload_func = func; }
 
-int engine_init(struct engine* engine_ptr)
+int8_t engine_init(struct engine* engine_ptr)
 {	
 	logger_log_string(LOG, "Creating window...\n");
 	int status = window_create(&engine_ptr->engine_window);
@@ -112,24 +112,24 @@ int engine_init(struct engine* engine_ptr)
 	engine_ptr->app_start_func();
 
 	// Initialize all entities with sprites
-	for (int i = 0; i < engine_ptr->sprite2d_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->sprite2d_components.size; i++)
 		render_system_init_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 
 	// Initialize all entities with textured sprites
-	for (int i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
 		render_system_init_textured_sprite2d(&engine_ptr->transform_components, &engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
 
 	// Initialize all entities with spritebatch sprites
-	for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 		render_system_init_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 
-	for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
 		render_system_init_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
 
-	for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->debug_line_components.size; i++)
 		render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
 
-	for (int i = 0; i < engine_ptr->script_components.size; i++)
+	for (uint32_t i = 0; i < engine_ptr->script_components.size; i++)
 		script_system_start(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
 
 	if (engine_ptr->app_engine_preload_func != NULL)
@@ -142,10 +142,10 @@ void engine_update(struct engine* engine_ptr)
 {
 	// TODO: Separate into files
 	
-	float start_time = engine_get_mills();
+	float64_t start_time = engine_get_mills();
 
 	// for fps calculations
-	double prev_time = engine_get_mills();
+	float64_t prev_time = engine_get_mills();
 
 	while (!window_should_close(&engine_ptr->engine_window))
 	{
@@ -155,26 +155,26 @@ void engine_update(struct engine* engine_ptr)
 		window_begin_frame(&engine_ptr->engine_window);
 
 		// We leave this at the beggining of the loop
-		double current_time = engine_get_mills();
+		float64_t current_time = engine_get_mills();
 
 		engine_fps_counter++;
 
-		for (int i = 0; i < engine_ptr->sprite2d_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_components.size; i++)
 			render_system_init_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 
-		for (int i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
 			render_system_init_textured_sprite2d(&engine_ptr->transform_components, &engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
 
-		for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 			render_system_init_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 
-		for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->debug_line_components.size; i++)
 			render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
 
-		for (int i = 0; i < engine_ptr->script_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->script_components.size; i++)
 			script_system_update(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
 
-		for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
 			render_system_init_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
 
 
@@ -221,31 +221,31 @@ void engine_update(struct engine* engine_ptr)
 
 		// Render all entities with components of type sprite2d_batch_simple
 		shader_use(_render_batch_simple_shader);
-		for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 			render_system_render_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 		shader_detach(_render_batch_simple_shader);
 
-		// Render all entities with components of type sprite2d_batch_simple
-		shader_use(_render_batch_complex_shader);
-		for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
-			render_system_render_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
-		shader_detach(_render_batch_complex_shader);
-	
 		// Render all entities with components of type textured_sprite
 		shader_use(_render_default_tex_shader);
-		for (int i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
 			render_system_render_textured_sprite2d(&engine_ptr->transform_components, &engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
 		shader_detach(_render_default_tex_shader);
 
+		// Render all entities with components of type sprite2d_batch_simple
+		shader_use(_render_batch_complex_shader);
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+			render_system_render_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
+		shader_detach(_render_batch_complex_shader);
+
 		// Render all entities with components of type sprite2d
 		shader_use(_render_default_shader);
-		for (int i = 0; i < engine_ptr->sprite2d_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->sprite2d_components.size; i++)
 			render_system_render_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 		shader_detach(_render_default_shader);
 
 		// Render all lines
 		shader_use(_render_line_shader);
-		for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
+		for (uint32_t i = 0; i < engine_ptr->debug_line_components.size; i++)
 		{
 			render_system_update_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
 			render_system_render_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
@@ -303,14 +303,14 @@ void engine_update(struct engine* engine_ptr)
 
 // TODO: Deltatime: this works but its not the best (or flexible) way in terms of compatibility with other devices
 
-void engine_time_end_frame(struct engine* engine_ptr, float* start_time)
+void engine_time_end_frame(struct engine* engine_ptr, float64_t* start_time)
 {
 	engine_ptr->delta_time = 1 / 60.0f;
 	/* engine_ptr->delta_time = engine_get_mills() - *start_time; */
 	/* *start_time = engine_get_mills(); */
 }
 
-int engine_end(struct engine* engine_ptr)
+int8_t engine_end(struct engine* engine_ptr)
 {
 	// Free all memory allocated by engine
 	
@@ -454,7 +454,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 	}
 
 	// We search for the components that our entity had
-	for (int i = 0; i < engine->transform_components.size; i++)
+	for (uint32_t i = 0; i < engine->transform_components.size; i++)
 	{
 		if (engine->transform_components.key[i] == e)
 		{
@@ -462,7 +462,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
-	for (int i = 0; i < engine->sprite2d_components.size; i++)
+	for (uint32_t i = 0; i < engine->sprite2d_components.size; i++)
 	{
 		if (engine->sprite2d_components.key[i] == e)
 		{
@@ -470,7 +470,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
-	for (int i = 0; i < engine->textured_sprite2d_components.size; i++)
+	for (uint32_t i = 0; i < engine->textured_sprite2d_components.size; i++)
 	{
 		if (engine->textured_sprite2d_components.key[i] == e)
 		{
@@ -478,7 +478,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
-	for (int i = 0; i < engine->sprite2d_batch_simple_components.size; i++)
+	for (uint32_t i = 0; i < engine->sprite2d_batch_simple_components.size; i++)
 	{
 		if (engine->sprite2d_batch_simple_components.key[i] == e)
 		{
@@ -486,7 +486,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
-	for (int i = 0; i < engine->debug_line_components.size; i++)
+	for (uint32_t i = 0; i < engine->debug_line_components.size; i++)
 	{
 		if (engine->debug_line_components.key[i] == e)
 		{
@@ -494,7 +494,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}	
 	}
-	for (int i = 0; i < engine->script_components.size; i++)
+	for (uint32_t i = 0; i < engine->script_components.size; i++)
 	{
 		if (engine->script_components.key[i] == e)
 		{
@@ -502,7 +502,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
-	for (int i = 0; i < engine->sprite2d_batch_complex_components.size; i++)
+	for (uint32_t i = 0; i < engine->sprite2d_batch_complex_components.size; i++)
 	{
 		if (engine->sprite2d_batch_complex_components.key[i] == e)
 		{
@@ -558,7 +558,7 @@ void* engine_get_entity_component(struct engine* engine, entity ent, unsigned in
 	return NULL;
 }
 
-int engine_has_entity(struct engine* engine, entity e)
+int8_t engine_has_entity(struct engine* engine, entity e)
 {
 	for (int i = 0; i < ENGINE_MAX_ENTITIES; i++)
 		if (engine->entities[i] == e) 

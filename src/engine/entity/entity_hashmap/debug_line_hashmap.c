@@ -18,10 +18,10 @@ void debug_line_hashmap_add(struct debug_line_hashmap* map, entity key)
 
 void debug_line_hashmap_pop(struct debug_line_hashmap* map, entity key)
 {
-    int entity_found = 0;
-    int index = 0;
+    int32_t entity_found = 0;
+    int32_t index = 0;
 
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
     {
         if (map->key[i] == key)
         {
@@ -32,14 +32,14 @@ void debug_line_hashmap_pop(struct debug_line_hashmap* map, entity key)
 
     if (!entity_found) return;
 
-    int last_element = map->size - 1;
+    int32_t last_element = map->size - 1;
 
     glDeleteBuffers(1, &map->value[index].vbo);
     glDeleteVertexArrays(1, &map->value[index].vao);
 
     if (index != last_element)
     {
-        for (int i = index + 1; i < map->size; i++)
+        for (uint32_t i = index + 1; i < map->size; i++)
         {
             map->value[i - 1] = map->value[i];
             map->key[i - 1] = map->key[i];
@@ -57,7 +57,7 @@ void debug_line_hashmap_free(struct debug_line_hashmap* map)
 {
     logger_log_string(WARNING, "Freeing line map memory!!\n");
 
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
     {
         glDeleteBuffers(1, &map->value[i].vbo);
         glDeleteVertexArrays(1, &map->value[i].vao);
@@ -69,7 +69,7 @@ void debug_line_hashmap_free(struct debug_line_hashmap* map)
 
 struct debug_line* debug_line_hashmap_get(struct debug_line_hashmap* map, entity key)
 {
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
 

@@ -239,7 +239,7 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 
 	shader_send_mat4(_render_default_tex_shader, transform->matrix, "transform");
 
-	texture_bind(sprite->texture);
+	texture_bind(*sprite->texture);
 	glBindVertexArray(sprite->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, sprite->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite->ebo);
@@ -258,7 +258,7 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 
 
 
-void render_textured_sprite_set_sprite(struct animation animation, int index, struct textured_sprite2d* sprite)
+void render_textured_sprite_set_sprite(struct animation animation, uint32_t index, struct textured_sprite2d* sprite)
 {
 	glBindVertexArray(sprite->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, sprite->vbo);

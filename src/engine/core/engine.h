@@ -1,6 +1,8 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include <stdint.h>
+
 #include "../window/window.h"
 #include "../input/input.h"
 #include "../shader/shader.h"
@@ -57,7 +59,7 @@ struct engine
 	// Engine is only going to support one window so we make it static 
 
 	struct window engine_window;
-	float delta_time;
+	float64_t delta_time;
 
 	entity entities[ENGINE_MAX_ENTITIES];
 
@@ -71,12 +73,12 @@ struct engine
 
 	struct script_hashmap script_components;
 
-	int ticks;
-	int fps;
+	int32_t ticks;
+	int32_t fps;
 
-	int entity_num;
+	uint16_t entity_num;
 
-	unsigned char config;
+	uint8_t config;
 
 	void (*app_start_func)(void); // Called after initializing all engine systems, before initializing ecs systems
 	void (*app_update_func)(void); // Called on each frame
@@ -86,15 +88,15 @@ struct engine
 };
 
 // ENGINE LOGIC FUNCTIONS 
-int engine_init(struct engine* engine_ptr);
+int8_t engine_init(struct engine* engine_ptr);
 void engine_update(struct engine* engine_ptr);
-int engine_end(struct engine* engine_ptr);
+int8_t engine_end(struct engine* engine_ptr);
 
 // ECS
 entity engine_create_entity(struct engine* engine, unsigned int components);
 void engine_pop_entity(struct engine* engine, entity e);
 void* engine_get_entity_component(struct engine* engine, entity ent, unsigned int component);
-int engine_has_entity(struct engine* engine, entity e);
+int8_t engine_has_entity(struct engine* engine, entity e);
 
 // CALLBACKS
 // Add functions that you want to run on the start and update of the engine
@@ -105,8 +107,8 @@ void engine_app_tick_update_callback_func(struct engine* engine, void (*func)(vo
 void engine_app_preload_callback_func(struct engine* engine, void (*func)(void));
 
 // TIME FUNCTIONS
-void engine_time_end_frame(struct engine* engine_ptr, float* start_time);
-double engine_get_mills(void);
+void engine_time_end_frame(struct engine* engine_ptr, float64_t* start_time);
+float64_t engine_get_mills(void);
 
 #endif
 

@@ -1,5 +1,7 @@
 #include "map.h"
 
+struct texture background_texture;
+
 struct map* map_create(int expand_left, int expand_right, struct vector2 chunk_origin)
 {
     struct map* map = (struct map*)malloc(sizeof(struct map));
@@ -20,18 +22,25 @@ struct map* map_create(int expand_left, int expand_right, struct vector2 chunk_o
 
     map->chunk_num = 0;
 
-    for (int i = -expand_left; i < expand_right; i++)
+    for (int32_t i = -expand_left; i < expand_right; i++)
     {
         map->chunks[map->chunk_num] = chunk_create(vector2(chunk_origin.x + (i * CHUNK_TILE_SCALE * CHUNK_WIDTH), chunk_origin.y));
         map->chunk_num++;
     }
+
+    map->background = engine_create_entity(global_engine, TRANSFORM | TEXTURED_SPRITE2D);
+    struct transform* t = ENTITY_GET_TRANSFORM(map->background);
+    struct textured_sprite2d* s = ENTITY_GET_TEXTURED_SPRITE2D(map->background);
+    t->scale = vector2(engine_camera.bounds.x, engine_camera.bounds.y);
+    s->texture = &background_texture;
+    s->config = SPRITE2D_TOP_LEFT;
 
     return map;
 }
 
 void map_end(struct map* map)
 {
-    for (int i = 0; i < map->chunk_num; i++)
+    for (uint32_t i = 0; i < map->chunk_num; i++)
         free(map->chunks[i]);
 
     free(map->chunks);

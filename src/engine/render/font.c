@@ -15,7 +15,7 @@ void ui_font_get_fnt_data(struct font* font, char* file)
 
 	char * curLine = font_string;
 
-	int i = 0;
+	int32_t i = 0;
 
 	while(curLine)
 	{
@@ -26,7 +26,7 @@ void ui_font_get_fnt_data(struct font* font, char* file)
 
 		while ((id = strtok(NULL, "=")) != NULL)
 		{
-			int num = atoi(id);
+			int32_t num = atoi(id);
 			font->data[i] = num;
 			i++;
 		}
@@ -39,7 +39,7 @@ void ui_font_get_fnt_data(struct font* font, char* file)
 	free(font_string);
 }
 
-void generate_uvs_from_fnt(struct ui_text* text, int x, int y, int w, int h, int vertex_ptr)
+void generate_uvs_from_fnt(struct ui_text* text, int32_t x, int32_t y, int32_t w, int32_t h, int32_t vertex_ptr)
 {
 	struct vector2 v1_coords = {0};
 	struct vector2 v2_coords = {0};
@@ -59,9 +59,11 @@ void generate_uvs_from_fnt(struct ui_text* text, int x, int y, int w, int h, int
 	text->vertices[vertex_ptr + 3].tex_coords = v4_coords;
 }
 
-void text_alloc_data(struct ui_text* text, const char* str, int len)
+void text_alloc_data(struct ui_text* text, const char* str, int32_t len)
 {
-	void* str_cpy = (char*)malloc(sizeof(char) * (len + 1));
+	size_t str_cpy_size = sizeof(char) * len + 1;
+
+	void* str_cpy = (char*)malloc(str_cpy_size);
 
 	if (str_cpy == NULL)
 		logger_log_string(ERROR, "Error allocating memory for text string, returning null\n");
@@ -75,14 +77,18 @@ void text_alloc_data(struct ui_text* text, const char* str, int len)
 
 	text->str[len] = '\0';
 
-	void* vert_alloc = malloc(sizeof(struct font_sprite_vertex) * 4 * len);
+	size_t vert_size = sizeof(struct font_sprite_vertex) * 4 * len;
+
+	void* vert_alloc = malloc(vert_size);
 	
 	if (vert_alloc == NULL)
 		logger_log_string(ERROR, "Error allocating memory for ui_text vertices\n");
 	else 
 		text->vertices = vert_alloc;
 
-	void* ind_alloc = malloc(sizeof(unsigned int) * 6 * len);
+	size_t ind_size = sizeof(uint32_t) * 6 * len;
+
+	void* ind_alloc = malloc(ind_size);
 
 	if (ind_alloc == NULL)
 		logger_log_string(ERROR, "Error allocating memory for ui_text_indices\n");
@@ -92,23 +98,23 @@ void text_alloc_data(struct ui_text* text, const char* str, int len)
 
 void text_generate_data(struct ui_text* text)
 {
-	int v_index = 0;
-	int i_index = 0;
-	int i_num_ptr = 0;
+	int32_t v_index = 0;
+	int32_t i_index = 0;
+	int32_t i_num_ptr = 0;
 
 	// Position of our cursor
 
 	struct vector2 v1_pos;
 
-	for (int i = 0; i < text->str_len; i++)
+	for (int32_t i = 0; i < text->str_len; i++)
 	{
 		if (text->str[i] == '\0') continue;
 
-		int fnt_index = (text->str[i] - 32) * 10;
+		int32_t fnt_index = (text->str[i] - 32) * 10;
 		struct vector2 scale = vector2(text->font->data[fnt_index + 3], text->font->data[fnt_index + 4]);
 		struct vector2 offset = vector2(text->font->data[fnt_index + 5], text->font->data[fnt_index + 6]);
 		struct vector2 pos = vector2(text->font->data[fnt_index + 1], text->font->data[fnt_index + 2]);
-		int advance = text->font->data[fnt_index + 7];
+		int32_t advance = text->font->data[fnt_index + 7];
 
 		// Generate vertices, this just generates rects that hold our characters
 
@@ -145,19 +151,25 @@ void text_generate_data(struct ui_text* text)
 	}
 }
 
-void ui_text_mod(struct ui_text* text, const char* str, int length)
+void ui_text_mod(struct ui_text* text, const char* str, int32_t length)
 {
-	text->str = (char*)memset(text->str, 0, sizeof(char) * (text->str_len + 1));
+	size_t t_str_size = sizeof(char) * text->str_len + 1;
+
+	text->str = (char*)memset(text->str, 0, t_str_size);
 
 	if (text->str == NULL)
 		logger_log_string(ERROR, "Failed re-setting ui_text string memory\n");
 
-	text->vertices = (struct font_sprite_vertex*)memset(text->vertices, 0, sizeof(struct font_sprite_vertex) * 4 * text->str_len);
+	size_t t_vert_size = sizeof(struct font_sprite_vertex) * 4 * text->str_len;
+
+	text->vertices = (struct font_sprite_vertex*)memset(text->vertices, 0, t_vert_size);
 
 	if (text->vertices == NULL)
 		logger_log_string(ERROR, "Failed re-setting ui_text vertices memory\n");
 
-	text->indices = (unsigned int*)memset(text->indices, 0, sizeof(unsigned int) * 6 * text->str_len);
+	size_t t_ind_size = sizeof(uint32_t) * 6 * text->str_len;
+
+	text->indices = (unsigned int*)memset(text->indices, 0, t_ind_size);
 
 	if (text->indices == NULL)
 		logger_log_string(ERROR, "Failed re-setting ui_text indices memory\n");
@@ -167,21 +179,27 @@ void ui_text_mod(struct ui_text* text, const char* str, int length)
 	if (text->str_len > FONT_MAX_STRING_SIZE)
 		logger_log_string(WARNING, "Maximum font string size reached!!! string may behave weird\n");
 
-	void* str_realloc = realloc(text->str, sizeof(char) * (length + 1));
+	size_t str_size = sizeof(char) * length + 1;
+
+	void* str_realloc = realloc(text->str, str_size);
 
 	if (str_realloc == NULL)
 		logger_log_string(ERROR, "Reallocation of string for ui_text_mod failed\n");
 	else
 		text->str = str_realloc;
 
-	void* vert_realloc = realloc(text->vertices, sizeof(struct font_sprite_vertex) * 4 * length);
+	size_t vert_size = sizeof(struct font_sprite_vertex) * 4 * length;
+
+	void* vert_realloc = realloc(text->vertices, vert_size);
 	
 	if (vert_realloc == NULL)
 		logger_log_string(ERROR, "Reallocation of vertices for ui_text_mod failed\n");
 	else 
 		text->vertices = vert_realloc;
 
-	void* ind_realloc = realloc(text->indices, sizeof(unsigned int) * 6 * length);
+	size_t ind_size = sizeof(uint32_t) * 6 * length;
+
+	void* ind_realloc = realloc(text->indices, ind_size);
 
 	if (ind_realloc == NULL)
 		logger_log_string(ERROR, "Reallocation of indices for ui_text_mod failed\n");
@@ -198,17 +216,17 @@ void ui_text_mod(struct ui_text* text, const char* str, int length)
 	glBindBuffer(GL_ARRAY_BUFFER, text->vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, text->ebo);
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(struct font_sprite_vertex) * 4 * length, text->vertices);
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned int) * 6 * length, text->indices);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vert_size, text->vertices);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, ind_size, text->indices);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, int len)
+struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, int32_t len)
 {
-	int str_len = len;
+	int32_t str_len = len;
 
 	if (str_len > FONT_MAX_STRING_SIZE)
 		logger_log_string(WARNING, "Maximum font string size reached!!! string may behave weird\n");
@@ -234,8 +252,11 @@ struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct 
 	glGenBuffers(1, &t->ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, t->ebo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(struct font_sprite_vertex) * 4 * FONT_MAX_STRING_SIZE, t->vertices, GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * FONT_MAX_STRING_SIZE, t->indices, GL_DYNAMIC_DRAW);
+	size_t vert_size = sizeof(struct font_sprite_vertex) * 4 * FONT_MAX_STRING_SIZE;
+	size_t ind_size =  sizeof(uint32_t) * 6 * FONT_MAX_STRING_SIZE;
+
+	glBufferData(GL_ARRAY_BUFFER, vert_size, t->vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ind_size, t->indices, GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct font_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct font_sprite_vertex), (void*)(2 * sizeof(float)));

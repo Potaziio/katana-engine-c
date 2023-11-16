@@ -2,6 +2,7 @@
 #define COLOR_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define RGBA_WHITE 255, 255, 255, 255
 #define RGBA_BLACK 0, 0, 0, 255
@@ -21,12 +22,12 @@
 
 struct rgba_color 
 {
-	unsigned char r, g, b, a;
+	uint8_t r, g, b, a;
 };
 
 struct rgb_color 
 {
-	unsigned char r, g, b;
+	uint8_t r, g, b;
 };
 
 #endif

@@ -1,10 +1,10 @@
 #include "math.h"
 
-float fisqrt(float num)
+float32_t fisqrt(float32_t num)
 {
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
+	int64_t i;
+	float32_t x2, y;
+	const float32_t threehalfs = 1.5F;
 
 	x2 = num * 0.5F;
 	y  = num;
@@ -16,13 +16,13 @@ float fisqrt(float num)
 	return y;
 }
 
-void init_random(unsigned int seed)
+void init_random(uint32_t seed)
 { srand(seed); }
 
-int rand_int(int min, int max)
+int32_t rand_int(int32_t min, int32_t max)
 { return (rand() % (max - min)) + min; }
 
-float fclamp(float min, float max, float val)
+float32_t fclamp(float32_t min, float32_t max, float32_t val)
 {
 	return val < min ? min : val > max ? max : val;
 

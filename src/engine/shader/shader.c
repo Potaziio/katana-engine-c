@@ -106,7 +106,7 @@ int shader_send_mat4(struct shader* shader, mat4 mat, char* name)
 
 void shader_free_memory(struct shader* shader)
 {
-	logger_log_string(WARNING, "Freeing shader memory.\n\n");
+	logger_log_string(WARNING, "Freeing shader memory.\n");
 	printf("%s%s[DELETED]%s Shader ID: %d\n\n", COLOR_START, LOG_YELLOW, COLOR_END, shader->id);
 
     glDeleteProgram(shader->id);

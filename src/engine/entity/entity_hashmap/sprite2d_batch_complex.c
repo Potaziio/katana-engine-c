@@ -19,10 +19,10 @@ void sprite2d_batch_complex_hashmap_add(struct sprite2d_batch_complex_hashmap* m
 
 void sprite2d_batch_complex_hashmap_pop(struct sprite2d_batch_complex_hashmap* map, entity key)
 {
-   int entity_found = 0;
-    int index = 0;
+   int32_t entity_found = 0;
+    int32_t index = 0;
 
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
     {
         if (map->key[i] == key)
         {
@@ -33,7 +33,7 @@ void sprite2d_batch_complex_hashmap_pop(struct sprite2d_batch_complex_hashmap* m
 
     if (!entity_found) return;
 
-    int last_element = map->size - 1;
+    int32_t last_element = map->size - 1;
 
     glDeleteBuffers(1, &map->value[index].vbo);
     glDeleteBuffers(1, &map->value[index].ebo);
@@ -44,7 +44,7 @@ void sprite2d_batch_complex_hashmap_pop(struct sprite2d_batch_complex_hashmap* m
 
     if (index != last_element)
     {
-        for (int i = index + 1; i < map->size; i++)
+        for (uint32_t i = index + 1; i < map->size; i++)
         {
             map->value[i - 1] = map->value[i];
             map->key[i - 1] = map->key[i];
@@ -61,7 +61,7 @@ void sprite2d_batch_complex_hashmap_free(struct sprite2d_batch_complex_hashmap* 
 {
     logger_log_string(WARNING, "Freeing sprite2D map memory!!\n");
 
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
     {
         glDeleteBuffers(1, &map->value[i].vbo);
         glDeleteBuffers(1, &map->value[i].ebo);
@@ -77,7 +77,7 @@ void sprite2d_batch_complex_hashmap_free(struct sprite2d_batch_complex_hashmap* 
 
 struct sprite2d_batch_complex* sprite2d_batch_complex_hashmap_get(struct sprite2d_batch_complex_hashmap* map, entity key)
 {
-    for (int i = 0; i < map->size; i++)
+    for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
 

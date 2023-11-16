@@ -52,6 +52,7 @@ void app_start(void)
 	// Load textures 
     texture_load(&player_texture, "../src/assets/player_test.png");
 	texture_load(&map_atlas, "../src/assets/map_atlas.png");
+	texture_load(&background_texture, "../src/assets/background.png");
 
 	char* dev_text = "KATANA ENGINE DEV 1.0";
 	text = ui_text_init(_engine_default_font, (struct rgba_color){RGBA_BLACK}, vector2(5.0f, 5.0f), 0.135f, dev_text, strlen(dev_text));
@@ -74,6 +75,8 @@ void app_end(void)
 {
 	map_end(map);
 	texture_free(&map_atlas);
+	texture_free(&background_texture);
+	texture_free(&player_texture);
 	ui_text_free(text);
 }
 

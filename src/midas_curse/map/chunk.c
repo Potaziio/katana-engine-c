@@ -19,23 +19,23 @@ struct chunk* chunk_create(struct vector2 origin)
     chunk->batch = ENTITY_GET_SPRITE2D_BATCH_COMPLEX(chunk->id);
     chunk->batch->batch_size = CHUNK_WIDTH * CHUNK_HEIGHT;
     chunk->batch->vertices = (struct textured_rectangle_sprite_vertex*)malloc(sizeof(struct textured_rectangle_sprite_vertex) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_VERTEX_NUM);
-    chunk->batch->indices = (unsigned int*)malloc(sizeof(unsigned int) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_INDEX_NUM);
+    chunk->batch->indices = (uint32_t*)malloc(sizeof(uint32_t) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_INDEX_NUM);
     chunk->batch->atlas = &map_atlas;
 
-    int v_index = 0;
-    int ind_index = 0;
-    int ind_cursor = 0;
+    int32_t v_index = 0;
+    int32_t ind_index = 0;
+    int32_t ind_cursor = 0;
 
     float x_pos = origin.x;
     float y_pos = origin.y;
 
     float v_pos = 32.0f;
 
-    for (int y = 0; y < CHUNK_HEIGHT; y++)
+    for (int32_t y = 0; y < CHUNK_HEIGHT; y++)
     {
-        for (int x = 0; x < CHUNK_WIDTH; x++)
+        for (int32_t x = 0; x < CHUNK_WIDTH; x++)
         {
-            int is_rock = y > 0;
+            int32_t is_rock = y > 0;
                 
             chunk->batch->vertices[v_index].position = vector2(x_pos, y_pos);
             chunk->batch->vertices[v_index + 1].position = vector2(x_pos + CHUNK_TILE_SCALE, y_pos);

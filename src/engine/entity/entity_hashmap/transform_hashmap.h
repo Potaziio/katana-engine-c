@@ -6,7 +6,7 @@
 struct transform_hashmap {
     entity* key;
     struct transform* value;
-    int size;
+    uint32_t size;
 };
 
 void transform_hashmap_create(struct transform_hashmap* map);

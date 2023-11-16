@@ -11,7 +11,7 @@ struct player player_create(struct vector2 position, struct map* map)
 	struct textured_sprite2d* s = ENTITY_GET_TEXTURED_SPRITE2D(player.entity);
 	t->position = vector2(position.x, position.y);
 	t->scale = vector2(PLAYER_WIDTH, PLAYER_HEIGHT);
-	s->texture = player_texture;
+	s->texture = &player_texture;
 
 	player.map = map;
 
