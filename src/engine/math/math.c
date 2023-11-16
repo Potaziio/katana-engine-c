@@ -4,7 +4,7 @@ float fisqrt(float num)
 {
 	int64_t i;
 	float x2, y;
-	const float32_t threehalfs = 1.5F;
+	const float threehalfs = 1.5F;
 
 	x2 = num * 0.5F;
 	y  = num;

@@ -108,7 +108,7 @@ void engine_app_preload_callback_func(struct engine* engine, void (*func)(void))
 
 // TIME FUNCTIONS
 void engine_time_end_frame(struct engine* engine_ptr, double* start_time);
-float64_t engine_get_mills(void);
+double engine_get_mills(void);
 
 #endif
 
