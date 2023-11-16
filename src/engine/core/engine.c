@@ -142,10 +142,10 @@ void engine_update(struct engine* engine_ptr)
 {
 	// TODO: Separate into files
 	
-	float64_t start_time = engine_get_mills();
+	float start_time = engine_get_mills();
 
 	// for fps calculations
-	float64_t prev_time = engine_get_mills();
+	float prev_time = engine_get_mills();
 
 	while (!window_should_close(&engine_ptr->engine_window))
 	{
@@ -155,7 +155,7 @@ void engine_update(struct engine* engine_ptr)
 		window_begin_frame(&engine_ptr->engine_window);
 
 		// We leave this at the beggining of the loop
-		float64_t current_time = engine_get_mills();
+		float current_time = engine_get_mills();
 
 		engine_fps_counter++;
 
@@ -303,7 +303,7 @@ void engine_update(struct engine* engine_ptr)
 
 // TODO: Deltatime: this works but its not the best (or flexible) way in terms of compatibility with other devices
 
-void engine_time_end_frame(struct engine* engine_ptr, float64_t* start_time)
+void engine_time_end_frame(struct engine* engine_ptr, double* start_time)
 {
 	engine_ptr->delta_time = 1 / 60.0f;
 	/* engine_ptr->delta_time = engine_get_mills() - *start_time; */

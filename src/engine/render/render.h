@@ -38,9 +38,9 @@ struct animation
 {
     struct frame_timer clock; // how long each sprite is going to be on the screen for 
     uint32_t sprite_num; // number of sprites in spritesheet
-    float32_t sprite_padding; // padding between sprites in spritesheet
-    float32_t sprite_width;
-    float32_t spritesheet_width;
+    float sprite_padding; // padding between sprites in spritesheet
+    float sprite_width;
+    float spritesheet_width;
     uint32_t current_index;
     uint32_t start;
     uint32_t end;
@@ -85,7 +85,7 @@ void render_free_debug_line(struct debug_line* line);
 // four lines have to be passed into the function
 void render_init_debug_aabb_collider(struct aabb aabb, struct debug_line* lines);
 void render_draw_debug_aabb_collider(struct aabb aabb, struct debug_line* lines);
-void render_free_debug_aabb_collider(struct aabb aabb, struct debug_line* lines);
+void render_free_debug_aabb_collider(struct debug_line* lines);
 
 // Sprite animations, this is to be used by textured sprites
 

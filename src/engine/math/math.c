@@ -1,9 +1,9 @@
 #include "math.h"
 
-float32_t fisqrt(float32_t num)
+float fisqrt(float num)
 {
 	int64_t i;
-	float32_t x2, y;
+	float x2, y;
 	const float32_t threehalfs = 1.5F;
 
 	x2 = num * 0.5F;
@@ -22,7 +22,7 @@ void init_random(uint32_t seed)
 int32_t rand_int(int32_t min, int32_t max)
 { return (rand() % (max - min)) + min; }
 
-float32_t fclamp(float32_t min, float32_t max, float32_t val)
+float fclamp(float min, float max, float val)
 {
 	return val < min ? min : val > max ? max : val;
 

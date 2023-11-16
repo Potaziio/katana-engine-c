@@ -59,7 +59,7 @@ struct engine
 	// Engine is only going to support one window so we make it static 
 
 	struct window engine_window;
-	float64_t delta_time;
+	double delta_time;
 
 	entity entities[ENGINE_MAX_ENTITIES];
 
@@ -107,7 +107,7 @@ void engine_app_tick_update_callback_func(struct engine* engine, void (*func)(vo
 void engine_app_preload_callback_func(struct engine* engine, void (*func)(void));
 
 // TIME FUNCTIONS
-void engine_time_end_frame(struct engine* engine_ptr, float64_t* start_time);
+void engine_time_end_frame(struct engine* engine_ptr, double* start_time);
 float64_t engine_get_mills(void);
 
 #endif

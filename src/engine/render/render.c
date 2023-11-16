@@ -561,10 +561,9 @@ void render_draw_debug_aabb_collider(struct aabb aabb, struct debug_line* lines)
 	shader_detach(_render_line_shader);
 }
 
-void render_free_debug_aabb_collider(struct aabb aabb, struct debug_line* lines)
+void render_free_debug_aabb_collider(struct debug_line* lines)
 {
 	for (int i = 0; i < 4; i++)
 		render_free_debug_line(&lines[i]);
 }
-
 

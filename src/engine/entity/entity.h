@@ -27,7 +27,7 @@ struct transform
 {
     struct vector2 position;
     struct vector2 scale;
-    float32_t rotation_angle;
+    float rotation_angle;
     uint8_t rotation_z;
     mat4 matrix;
 };
