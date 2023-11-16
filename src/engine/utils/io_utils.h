@@ -7,7 +7,7 @@
 
 #include "logger.h"
 
-void io_utils_read_file(char* path, char* dest);
+long io_utils_read_file(char* path, char* dest);
 void io_utils_write_to_file(char* path, char* text);
 
 int io_utils_file_length(char* path);

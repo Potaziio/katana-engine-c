@@ -72,6 +72,7 @@ int shader_load_and_compile(struct shader* shader, char* vertex_path, char* frag
 
 	shader->was_initialized = 1;
 	shader->was_freed = 0;
+	shader->being_used = 0;
 
 	glDeleteShader(vertex_id);
     glDeleteShader(fragment_id);

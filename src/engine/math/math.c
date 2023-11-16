@@ -22,3 +22,9 @@ void init_random(unsigned int seed)
 int rand_int(int min, int max)
 { return (rand() % (max - min)) + min; }
 
+float fclamp(float min, float max, float val)
+{
+	return val < min ? min : val > max ? max : val;
+
+}
+

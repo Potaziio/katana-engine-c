@@ -18,6 +18,7 @@
 #include "../entity/entity_hashmap/sprite2d_hashmap.h"
 #include "../entity/entity_hashmap/textured_sprite2d_hashmap.h"
 #include "../entity/entity_hashmap/sprite2d_batch_simple.h"
+#include "../entity/entity_hashmap/sprite2d_batch_complex.h"
 #include "../entity/entity_hashmap/debug_line_hashmap.h"
 #include "../entity/entity_hashmap/script_hashmap.h"
 
@@ -42,6 +43,7 @@
 #define ENTITY_GET_SPRITE2D_BATCH_SIMPLE(x) (struct sprite2d_batch_simple*)(engine_get_entity_component(global_engine, x, SPRITE2D_BATCH_SIMPLE))
 #define ENTITY_GET_DEBUG_LINE(x) (struct debug_line*)(engine_get_entity_component(global_engine, x, DEBUG_LINE));
 #define ENTITY_GET_SCRIPT(x) (struct script*)(engine_get_entity_component(global_engine, x, SCRIPT));
+#define ENTITY_GET_SPRITE2D_BATCH_COMPLEX(x) (struct sprite2d_batch_complex*)(engine_get_entity_component(global_engine, x, SPRITE2D_BATCH_COMPLEX))
 
 #define ENTITY_FOR_LOOP(x) for (int x = 0; x < ENGINE_MAX_ENTITIES; x++)
 #define ENTITY_ARRAY global_engine->entities
@@ -65,6 +67,8 @@ struct engine
 	struct textured_sprite2d_hashmap textured_sprite2d_components;
 	struct sprite2d_batch_simple_hashmap sprite2d_batch_simple_components;
 	struct debug_line_hashmap debug_line_components;
+	struct sprite2d_batch_complex_hashmap sprite2d_batch_complex_components;
+
 	struct script_hashmap script_components;
 
 	int ticks;

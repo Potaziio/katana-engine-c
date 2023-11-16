@@ -47,6 +47,8 @@ int engine_init(struct engine* engine_ptr)
 
 	_render_font_default_texture = (struct texture*) malloc(sizeof(struct texture));
 
+	_render_batch_complex_shader = (struct shader*) malloc(sizeof(struct shader));
+
 	engine_ptr->config = 0;
 
 	shader_load_and_compile(_render_default_shader,
@@ -65,15 +67,19 @@ int engine_init(struct engine* engine_ptr)
 			"../src/engine/assets/shaders/default_batch_simple_vertex.glsl",
 			"../src/engine/assets/shaders/default_batch_simple_fragment.glsl");
 
-	texture_load(_render_font_default_texture, "../src/engine/assets/fonts/librefont.png");
+	shader_load_and_compile(_render_batch_complex_shader, 
+			"../src/engine/assets/shaders/default_batch_complex_vertex.glsl",
+			"../src/engine/assets/shaders/default_batch_complex_fragment.glsl");
+
+	texture_load(_render_font_default_texture, "../src/engine/assets/fonts/Nes/Nes.png");
 
 	shader_load_and_compile(_render_font_shader, "../src/engine/assets/shaders/default_font_vertex.glsl", "../src/engine/assets/shaders/default_font_fragment.glsl");
 
 	_engine_default_font->bitmap = _render_font_default_texture;
-	_engine_default_font->char_padding = -3;
+	_engine_default_font->char_padding = 0;
 	_engine_default_font->image_width = texture_get_width(*_render_font_default_texture);
 	_engine_default_font->image_height = texture_get_height(*_render_font_default_texture);
-	_engine_default_font->scale = 16;
+	ui_font_get_fnt_data(_engine_default_font, "../src/engine/assets/fonts/Nes/Nes.fnt");
 
 	global_engine = engine_ptr;
 
@@ -86,6 +92,7 @@ int engine_init(struct engine* engine_ptr)
 	sprite2d_batch_simple_hashmap_create(&engine_ptr->sprite2d_batch_simple_components);
 	debug_line_hashmap_create(&engine_ptr->debug_line_components);
 	script_hashmap_create(&engine_ptr->script_components);
+	sprite2d_batch_complex_hashmap_create(&engine_ptr->sprite2d_batch_complex_components);
 
 	engine_ptr->entity_num = 0;
 
@@ -115,6 +122,9 @@ int engine_init(struct engine* engine_ptr)
 	// Initialize all entities with spritebatch sprites
 	for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 		render_system_init_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
+
+	for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+		render_system_init_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
 
 	for (int i = 0; i < engine_ptr->debug_line_components.size; i++)
 		render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
@@ -164,6 +174,9 @@ void engine_update(struct engine* engine_ptr)
 		for (int i = 0; i < engine_ptr->script_components.size; i++)
 			script_system_update(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
 
+		for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+			render_system_init_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
+
 
 		// We update the camera bounds to the screen dimensions here
 
@@ -202,11 +215,21 @@ void engine_update(struct engine* engine_ptr)
 		camera_send_matrices_to_shader(&engine_camera, _render_font_shader, "projection", "view");
 		shader_detach(_render_font_shader);
 
+		shader_use(_render_batch_complex_shader);
+		camera_send_matrices_to_shader(&engine_camera, _render_batch_complex_shader, "projection", "view");
+		shader_detach(_render_batch_complex_shader);
+
 		// Render all entities with components of type sprite2d_batch_simple
 		shader_use(_render_batch_simple_shader);
 		for (int i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 			render_system_render_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 		shader_detach(_render_batch_simple_shader);
+
+		// Render all entities with components of type sprite2d_batch_simple
+		shader_use(_render_batch_complex_shader);
+		for (int i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
+			render_system_render_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
+		shader_detach(_render_batch_complex_shader);
 	
 		// Render all entities with components of type textured_sprite
 		shader_use(_render_default_tex_shader);
@@ -319,6 +342,7 @@ int engine_end(struct engine* engine_ptr)
 	sprite2d_batch_simple_hashmap_free(&engine_ptr->sprite2d_batch_simple_components);
 	debug_line_hashmap_free(&engine_ptr->debug_line_components);
 	script_hashmap_free(&engine_ptr->script_components);
+	sprite2d_batch_complex_hashmap_free(&engine_ptr->sprite2d_batch_complex_components);
 
 	engine_ptr->app_end_func();
 		
@@ -398,6 +422,13 @@ entity engine_create_entity(struct engine* engine, unsigned int components)
 		struct script* script = ENTITY_GET_SCRIPT(ent);
 		*script = (struct script){.start=NULL, .update=NULL, .data=NULL};
 	}
+	if (components & SPRITE2D_BATCH_COMPLEX)
+	{
+		if (!(engine->config & ENGINE_SILENCE_ENTITY_LOG)) printf("	Attaching sprite2d_batch_complex\n");
+		sprite2d_batch_complex_hashmap_add(&engine->sprite2d_batch_complex_components, ent);
+		struct sprite2d_batch_complex* sprite = ENTITY_GET_SPRITE2D_BATCH_COMPLEX(ent);
+		*sprite = (struct sprite2d_batch_complex){0};
+	}
 
 	engine->entity_num++;
 
@@ -471,6 +502,14 @@ void engine_pop_entity(struct engine *engine, entity e)
 			break;
 		}
 	}
+	for (int i = 0; i < engine->sprite2d_batch_complex_components.size; i++)
+	{
+		if (engine->sprite2d_batch_complex_components.key[i] == e)
+		{
+			components |= SPRITE2D_BATCH_COMPLEX;
+			break;
+		}
+	}
 
 	// We remove all the components found
 	if (components & TRANSFORM)
@@ -485,6 +524,8 @@ void engine_pop_entity(struct engine *engine, entity e)
 		debug_line_hashmap_pop(&engine->debug_line_components, e);
 	if (components & SCRIPT)
 		script_hashmap_pop(&engine->script_components, e);
+	if (components & SPRITE2D_BATCH_COMPLEX)
+		sprite2d_batch_complex_hashmap_pop(&engine->sprite2d_batch_complex_components, e);
 
 	engine->entities[entity_index] = 0;
 	engine->entity_num--;
@@ -511,6 +552,8 @@ void* engine_get_entity_component(struct engine* engine, entity ent, unsigned in
 		return (void*)debug_line_hashmap_get(&engine->debug_line_components, ent);
 	else if (component & SCRIPT)
 		return (void*)script_hashmap_get(&engine->script_components, ent);
+	else if (component & SPRITE2D_BATCH_COMPLEX)
+		return (void*)sprite2d_batch_complex_hashmap_get(&engine->sprite2d_batch_complex_components, ent);
 	
 	return NULL;
 }

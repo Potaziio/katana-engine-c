@@ -8,7 +8,7 @@
 #define SPRITE2D_BATCH_SIMPLE 16 // 2^4
 #define DEBUG_LINE 32 // 2^5
 #define SCRIPT 64 // 2^6
-#define FONT 128 // 2^7
+#define SPRITE2D_BATCH_COMPLEX 128 // 2^7
 
 #define SPRITE2D_CENTERED 1
 #define SPRITE2D_TOP_LEFT 2
@@ -34,7 +34,7 @@ struct transform
 
 struct rectangle_sprite_vertex 
 {
-    struct vector3 position;
+    struct vector2 position;
     struct rgba_color color;
 };
 
@@ -64,7 +64,7 @@ struct debug_line
 
 struct textured_rectangle_sprite_vertex
 {
-    struct vector3 position;
+    struct vector2 position;
     struct vector2 tex_coords;
 };
 
@@ -84,6 +84,16 @@ struct sprite2d_batch_simple
     struct rectangle_sprite_vertex* vertices;
     unsigned int* indices;
     struct rgba_color color;
+    int batch_size;
+    char was_initialized;
+};
+
+struct sprite2d_batch_complex
+{
+    unsigned int vao, vbo, ebo;
+    struct textured_rectangle_sprite_vertex* vertices;
+    unsigned int* indices;
+    struct texture* atlas;
     int batch_size;
     char was_initialized;
 };

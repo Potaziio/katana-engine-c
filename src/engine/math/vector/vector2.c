@@ -40,3 +40,9 @@ float vector2_dist(struct vector2 v1, struct vector2 v2)
 	return sqrt(d);
 }
 
+struct vector2 vector2(float x, float y)
+{	return (struct vector2){x, y}; }
+
+struct vector2 vector2_zero()
+{ return (struct vector2){0.0f, 0.0f}; }
+

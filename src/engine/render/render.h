@@ -13,6 +13,7 @@
 #include "../entity/entity_hashmap/sprite2d_hashmap.h"
 #include "../entity/entity_hashmap/sprite2d_batch_simple.h"
 #include "../entity/entity_hashmap/debug_line_hashmap.h"
+#include "../entity//entity_hashmap/sprite2d_batch_complex.h"
 
 #include "../math/physics/shape/shapes.h"
 
@@ -29,6 +30,7 @@
 
 #define SPRITE2D_VERTEX_NUM 4
 #define TEXTURED_SPRITE2D_VERTEX_NUM 4
+#define SPRITE2D_INDEX_NUM 6
 
 
 // Only works with spritesheets that are horizontal 
@@ -49,6 +51,7 @@ extern struct shader* _render_default_tex_shader;
 extern struct shader* _render_line_shader;
 extern struct shader* _render_batch_simple_shader;
 extern struct shader* _render_font_shader;
+extern struct shader* _render_batch_complex_shader;
 extern struct texture* _render_font_default_texture;
 
 // Sprite2d
@@ -63,6 +66,10 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transfom_m
 // Sprite2d batch simple
 void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity);
 void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity);
+
+// Sprite2d batch complex
+void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity);
+void render_system_render_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity);
 
 // Debug Line 
 void render_system_init_debug_line(struct debug_line_hashmap* line_map, entity entity);

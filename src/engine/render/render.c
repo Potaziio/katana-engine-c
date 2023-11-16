@@ -19,6 +19,7 @@ struct shader* _render_line_shader;
 struct shader* _render_batch_simple_shader;
 struct shader* _render_font_shader;
 struct texture* _render_font_default_texture;
+struct shader* _render_batch_complex_shader;
 
 void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map,  entity entity)
 {
@@ -34,24 +35,24 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 
 	if (sprite->config & SPRITE2D_CENTERED)
 	{
-		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){-0.5f, -0.5f};
+		sprite->vertices[1].position = (struct vector2){0.5f, -0.5f};
+		sprite->vertices[2].position = (struct vector2){-0.5f, 0.5f};
+		sprite->vertices[3].position = (struct vector2){0.5f, 0.5f};
 	} 
 	else if (sprite->config & SPRITE2D_TOP_LEFT)
 	{
-		sprite->vertices[0].position = (struct vector3){0.0f, 0.0f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){1.0f, 0.0f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){0.0f, 1.0f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){1.0f, 1.0f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){0.0f, 0.0f};
+		sprite->vertices[1].position = (struct vector2){1.0f, 0.0f};
+		sprite->vertices[2].position = (struct vector2){0.0f, 1.0f};
+		sprite->vertices[3].position = (struct vector2){1.0f, 1.0f};
 	} 
 	else
 	{
-		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){-0.5f, -0.5f};
+		sprite->vertices[1].position = (struct vector2){0.5f, -0.5f};
+		sprite->vertices[2].position = (struct vector2){-0.5f, 0.5f};
+		sprite->vertices[3].position = (struct vector2){0.5f, 0.5f};
 
 		logger_log_string(WARNING, "Origin configuration for sprite is bad, generating sprite at center (default)\n");
 		sprite->config |= SPRITE2D_CENTERED;
@@ -59,7 +60,7 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 
 	
 	for (int i = 0; i < 4; i++)
-		sprite->vertices[i].color = (struct rgba_color){RGBA_NORMALIZED_INT(sprite->color)};
+		sprite->vertices[i].color = sprite->color;
 
 	sprite->indices[0] = 0;
 	sprite->indices[1] = 1;
@@ -78,8 +79,8 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct rectangle_sprite_vertex) * 4, sprite->vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
-	glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
 
 	sprite->was_initialized = 1;
 }
@@ -138,7 +139,7 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 	}
 
 	for (int i = 0; i < SPRITE2D_VERTEX_NUM; i++)
-		sprite->vertices[i].color = (struct rgba_color){RGBA_NORMALIZED(sprite->color)};
+		sprite->vertices[i].color = sprite->color;
 
 	glBindBuffer(GL_ARRAY_BUFFER, sprite->vbo);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(struct rectangle_sprite_vertex) * 4, sprite->vertices);
@@ -159,23 +160,23 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 
 	if (sprite->config & SPRITE2D_CENTERED)
 	{
-		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){-0.5f, -0.5f};
+		sprite->vertices[1].position = (struct vector2){0.5f, -0.5f};
+		sprite->vertices[2].position = (struct vector2){-0.5f, 0.5f};
+		sprite->vertices[3].position = (struct vector2){0.5f, 0.5f};
 	} else if (sprite->config & SPRITE2D_TOP_LEFT)
 	{
-		sprite->vertices[0].position = (struct vector3){0.0f, 0.0f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){1.0f, 0.0f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){0.0f, 1.0f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){1.0f, 1.0f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){0.0f, 0.0f};
+		sprite->vertices[1].position = (struct vector2){1.0f, 0.0f};
+		sprite->vertices[2].position = (struct vector2){0.0f, 1.0f};
+		sprite->vertices[3].position = (struct vector2){1.0f, 1.0f};
 	}
 	else
 	{
-		sprite->vertices[0].position = (struct vector3){-0.5f, -0.5f, 0.0f};
-		sprite->vertices[1].position = (struct vector3){0.5f, -0.5f, 0.0f};
-		sprite->vertices[2].position = (struct vector3){-0.5f, 0.5f, 0.0f};
-		sprite->vertices[3].position = (struct vector3){0.5f, 0.5f, 0.0f};
+		sprite->vertices[0].position = (struct vector2){-0.5f, -0.5f};
+		sprite->vertices[1].position = (struct vector2){0.5f, -0.5f};
+		sprite->vertices[2].position = (struct vector2){-0.5f, 0.5f};
+		sprite->vertices[3].position = (struct vector2){0.5f, 0.5f};
 
 		logger_log_string(WARNING, "Origin configuration for sprite is bad, generating sprite at center (default)\n");
 		sprite->config |= SPRITE2D_CENTERED;
@@ -206,8 +207,8 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4, sprite->vertices, GL_DYNAMIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -254,6 +255,8 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	texture_unbind();
 }
+
+
 
 void render_textured_sprite_set_sprite(struct animation animation, int index, struct textured_sprite2d* sprite)
 {
@@ -314,8 +317,8 @@ void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashm
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct rectangle_sprite_vertex) * 4 * batch->batch_size, batch->vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
-	glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -349,6 +352,68 @@ void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_has
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity)
+{
+	struct sprite2d_batch_complex* batch = sprite2d_batch_complex_hashmap_get(batch_map, entity);
+
+	if (batch == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
+	if (batch->was_initialized) return;
+
+	glGenBuffers(1, &batch->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);
+	glGenVertexArrays(1, &batch->vao);
+	glBindVertexArray(batch->vao);
+	glGenBuffers(1, &batch->ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->ebo);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4 * batch->batch_size, batch->vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	batch->was_initialized = 1;
+}
+
+void render_system_render_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity)
+{
+	struct sprite2d_batch_complex* batch = sprite2d_batch_complex_hashmap_get(batch_map, entity);
+
+	if (batch == NULL)
+	{
+		logger_log_string(ERROR, "Render: Bad access\n");
+		return;
+	}
+
+	texture_bind(*batch->atlas);
+
+	glBindVertexArray(batch->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->ebo);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawElements(GL_TRIANGLES, 6 * batch->batch_size, GL_UNSIGNED_INT, 0);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	texture_unbind();
+}
+
+
 void render_system_init_debug_line(struct debug_line_hashmap* line_map, entity entity)
 {
 	struct debug_line* line = debug_line_hashmap_get(line_map, entity);
@@ -370,7 +435,7 @@ void render_system_init_debug_line(struct debug_line_hashmap* line_map, entity e
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct line_vertex) * 2, line->vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct line_vertex), (void*)0);
-	glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, sizeof(struct line_vertex), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct line_vertex), (void*)(2 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -445,7 +510,7 @@ void render_init_debug_line(struct debug_line* line)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct line_vertex) * 2, line->vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct line_vertex), (void*)0);
-	glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, sizeof(struct line_vertex), (void*)(2 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct line_vertex), (void*)(2 * sizeof(float)));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

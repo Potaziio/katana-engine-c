@@ -8,6 +8,11 @@ in vec4 texColor;
 
 void main()
 {
-    FragColor = texture(ourTexture, TexCoord) * texColor;
+    float color_r = texColor.r / 255.0f;
+    float color_g = texColor.g / 255.0f;
+    float color_b = texColor.b / 255.0f;
+    float color_a = texColor.a / 255.0f;
+
+    FragColor = texture(ourTexture, TexCoord) * vec4(color_r, color_g, color_b, color_a);
 }  
 

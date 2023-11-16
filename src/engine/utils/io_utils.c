@@ -1,6 +1,7 @@
 #include "io_utils.h"
 
-void io_utils_read_file(char* path, char* dest)
+// Returns size of file
+long io_utils_read_file(char* path, char* dest)
 {
     char* buffer;
     long lsize;
@@ -28,6 +29,8 @@ void io_utils_read_file(char* path, char* dest)
     strcpy(dest, buffer);
 
     free(buffer);
+
+    return lsize;
 }
 
 void io_utils_write_to_file(char* path, char* text)
