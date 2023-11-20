@@ -21,7 +21,7 @@ int timer_add_and_respond(struct timer* timer, float delta_time)
 {
 	if (timer->timer < timer->target)
 	{
-		timer->timer += (delta_time / 60) * 1000;
+		timer->timer += (delta_time) * 1000;
 		return 0;
 	}
 
@@ -39,10 +39,9 @@ int timer_add_respond_and_reset(struct timer* timer, float delta_time)
 {
 	if (timer->timer < timer->target)
 	{
-		timer->timer += (delta_time / 60) * 1000;
-		return 0;
+		timer->timer += (delta_time) * 1000;
 	}
-	else 
+	else
 	{
 		timer->timer = 0;
 		return 1;

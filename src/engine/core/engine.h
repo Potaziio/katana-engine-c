@@ -32,6 +32,7 @@
 #define ENGINE_MAX_ENTITIES 10000
 #define TICK_TIME 20
 #define ENGINE_WINDOW_CENTER engine_camera.bounds.x * 0.5f, engine_camera.bounds.y * 0.5f
+#define ENGINE_MIN_DELTA_MS 50.0
 
 // Engine config 
 #define ENGINE_PRINT_FPS 1

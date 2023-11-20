@@ -12,10 +12,11 @@
 #include "../../math/physics/physics.h"
 #include "../../camera/camera.h"
 
-#define UI_MENU_ELEMENT_STATIC_COLOR (struct rgba_color){RGBA_BLACK}
+#define UI_MENU_ELEMENT_STATIC_COLOR (struct rgba_color){RGBA_WHITE}
 #define UI_MENU_ELEMENT_ON_HOVER_COLOR (struct rgba_color){RGBA_RED}
 
-#define UI_MENU_DEFAULT_TEXT_SCALE 32.0f
+#define UI_MENU_LINE_HEIGHT 120 
+#define UI_MENU_DEFAULT_TEXT_SCALE 0.5
 #define UI_MENU_DEFAULT_VERTICAL_OPTION_PADDING 5.0f;
 
 // Menu flags
@@ -39,12 +40,12 @@ struct ui_menu
 {
     struct ui_menu_option* options;
 
-    int option_num;
+    uint32_t option_num;
     float bottom_padding;
     float horizontal_padding;
     float vertical_padding;
-    unsigned char option_click;
-    unsigned char active;
+    int8_t option_click;
+    uint8_t active;
 };
 
 int ui_menu_get_option_on_click(struct ui_menu* menu);

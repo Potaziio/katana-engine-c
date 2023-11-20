@@ -13,7 +13,7 @@ void camera_update(struct camera* camera)
 	_camera_up[1] = 1.0f;
 	_camera_up[2] = 0.0f;
 
-	vec3 pos = {camera->position.x, camera->position.y, camera->position.z};
+	vec3 pos = {camera->position.x, camera->position.y, 0.0f};
 	vec3 dest;
 
 	glm_mat4_identity(camera->projection_mat);

@@ -12,8 +12,11 @@ void debug_line_hashmap_add(struct debug_line_hashmap* map, entity key)
     map->key[map->size] = key;
     map->size++;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct debug_line*)realloc(map->value, sizeof(struct debug_line) * (map->size + 1));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct script) * (map->size + 1);
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct debug_line*)realloc(map->value, value_size);
 }
 
 void debug_line_hashmap_pop(struct debug_line_hashmap* map, entity key)
@@ -48,9 +51,11 @@ void debug_line_hashmap_pop(struct debug_line_hashmap* map, entity key)
 
     map->size--;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct debug_line*)realloc(map->value, (map->size + 1) * sizeof(struct debug_line));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct script) * (map->size + 1);
 
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct debug_line*)realloc(map->value, value_size);
 }
 
 void debug_line_hashmap_free(struct debug_line_hashmap* map)

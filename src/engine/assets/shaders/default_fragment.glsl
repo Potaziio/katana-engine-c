@@ -3,8 +3,6 @@
 out vec4 FragColor;
 in vec4 ourColor;
 
-uniform float time;
-
 void main()
 {
     float color_r = ourColor.r / 255.0f;

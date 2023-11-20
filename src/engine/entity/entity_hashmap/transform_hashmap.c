@@ -12,8 +12,11 @@ void transform_hashmap_add(struct transform_hashmap* map, entity key)
     map->key[map->size] = key;
     map->size++;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct transform*)realloc(map->value, sizeof(struct transform) * (map->size + 1));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct transform) * (map->size + 1);
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct transform*)realloc(map->value, value_size);
 }
 
 void transform_hashmap_pop(struct transform_hashmap* map, entity key)
@@ -45,8 +48,11 @@ void transform_hashmap_pop(struct transform_hashmap* map, entity key)
 
     map->size--;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct transform*)realloc(map->value, (map->size + 1) * sizeof(struct transform));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct transform) * (map->size + 1);
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct transform*)realloc(map->value, value_size);
 
 }
 

@@ -12,8 +12,11 @@ void sprite2d_batch_simple_hashmap_add(struct sprite2d_batch_simple_hashmap* map
     map->key[map->size] = key;
     map->size++;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct sprite2d_batch_simple*)realloc(map->value, sizeof(struct sprite2d_batch_simple) * (map->size + 1));
+    size_t key_size = sizeof(entity) * (map->size + 1);
+    size_t value_size = sizeof(struct sprite2d_batch_simple) * (map->size + 1);
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct sprite2d_batch_simple*)realloc(map->value, value_size);
 
 }
 
@@ -51,8 +54,11 @@ void sprite2d_batch_simple_hashmap_pop(struct sprite2d_batch_simple_hashmap* map
         }
     }
 
-    map->key = (entity*)realloc(map->key, (last_element) * sizeof(entity));
-    map->value = (struct sprite2d_batch_simple*)realloc(map->value, (last_element) * sizeof(struct sprite2d_batch_simple));
+   size_t key_size = sizeof(entity) * last_element;
+    size_t value_size = sizeof(struct sprite2d_batch_simple) * last_element;
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct sprite2d_batch_simple*)realloc(map->value, value_size);
 
     map->size--;
 }

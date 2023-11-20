@@ -7,7 +7,7 @@
 #define PLAYER_WIDTH 32 
 #define PLAYER_HEIGHT 64
 
-#define PLAYER_SPEED 6
+#define PLAYER_SPEED 18
 
 extern struct texture player_texture;
 

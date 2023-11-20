@@ -15,5 +15,6 @@ float vector2_dist(struct vector2 v1, struct vector2 v2);
 struct vector2 vector2_lerp(struct vector2 target, struct vector2 source, float speed);
 struct vector2 vector2(float x, float y);
 struct vector2 vector2_zero();
+void vector2_to_string(struct vector2 vec, char* dest);
 
 #endif 

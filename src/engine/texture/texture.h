@@ -13,11 +13,11 @@
 
 struct texture
 {
-	int width, height, channels;
+	int32_t width, height, channels;
 	unsigned char* data;
-	unsigned int id;
+	uint32_t id;
 	const char* file_path;
-	int loaded;
+	uint8_t loaded;
 };
 
 void texture_load(struct texture* texture, const char* path);
@@ -26,9 +26,9 @@ void texture_bind(struct texture texture);
 void texture_unbind(void);
 const char* texture_get_path(struct texture texture);
 unsigned char* texture_get_data(struct texture texture);
-int texture_get_width(struct texture texture);
-int texture_get_height(struct texture texture);
+int32_t texture_get_width(struct texture texture);
+int32_t texture_get_height(struct texture texture);
 void texture_free(struct texture* texture);
-int texture_is_good(struct texture* texture);
+uint8_t texture_is_good(struct texture* texture);
 
 #endif

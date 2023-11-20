@@ -77,7 +77,7 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite->ebo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct rectangle_sprite_vertex) * 4, sprite->vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 6, sprite->indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
@@ -98,7 +98,7 @@ void render_system_render_sprite2d(struct transform_hashmap* transform_map, stru
 
 	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
 	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
-	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_z};
+	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_angle > 0 ? 1 : transform->rotation_angle < 0 ? -1 : 0};
 
 	glm_mat4_identity(transform->matrix);
 	glm_translate(transform->matrix, glm_pos_vec);
@@ -205,7 +205,7 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite->ebo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4, sprite->vertices, GL_DYNAMIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, sprite->indices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 6, sprite->indices, GL_DYNAMIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
@@ -230,7 +230,7 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 
 	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
 	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
-	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_z};
+	vec3 glm_rotation_vec = {0.0f, 0.0f, transform->rotation_angle > 0 ? 1 : transform->rotation_angle < 0 ? -1 : 0};
 
 	glm_mat4_identity(transform->matrix);
 	glm_translate(transform->matrix, glm_pos_vec);
@@ -298,7 +298,7 @@ void animation_cycle_through(struct animation* animation, struct textured_sprite
 void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
-
+	
 	if (batch == NULL)
 	{
 		logger_log_string(ERROR, "Render: Bad access\n");
@@ -315,7 +315,7 @@ void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashm
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->ebo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct rectangle_sprite_vertex) * 4 * batch->batch_size, batch->vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(struct rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
@@ -324,12 +324,15 @@ void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashm
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	batch->active = 1;
 	batch->was_initialized = 1;
 }
 
 void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
+
+	if (!batch->active) return;
 
 	if (batch == NULL)
 	{
@@ -352,6 +355,16 @@ void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_has
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void render_system_update_sprite2d_batch_vertices(struct sprite2d_batch_simple* batch)
+{
+	if (!batch->was_initialized) return;
+
+	glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, 0,  sizeof(struct rectangle_sprite_vertex) * 4 * batch->batch_size, batch->vertices);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32_t) * 6 * batch->batch_size, batch->indices);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_complex* batch = sprite2d_batch_complex_hashmap_get(batch_map, entity);
@@ -372,7 +385,7 @@ void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_has
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->ebo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(struct textured_rectangle_sprite_vertex) * 4 * batch->batch_size, batch->vertices, GL_STATIC_DRAW);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 6 * batch->batch_size, batch->indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(struct textured_rectangle_sprite_vertex), (void*)(2 * sizeof(float)));
@@ -381,12 +394,16 @@ void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_has
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+	batch->active = 1;
+
 	batch->was_initialized = 1;
 }
 
 void render_system_render_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_complex* batch = sprite2d_batch_complex_hashmap_get(batch_map, entity);
+
+	if (!batch->active) return;
 
 	if (batch == NULL)
 	{

@@ -13,10 +13,13 @@ int shader_load_and_compile(struct shader* shader, char* vertex_path, char* frag
 		return 0;
 	};
 
-	shader->vertex_string = (char*)malloc(sizeof(char) * io_utils_file_length(vertex_path));
+	size_t v_string = sizeof(char) * io_utils_file_length(vertex_path);
+	size_t f_string = sizeof(char) * io_utils_file_length(fragment_path);
+
+	shader->vertex_string = (char*)malloc(v_string);
 	io_utils_read_file(vertex_path, shader->vertex_string);
 
-	shader->fragment_string = (char*)malloc(sizeof(char) * io_utils_file_length(fragment_path));
+	shader->fragment_string = (char*)malloc(f_string);
 	io_utils_read_file(fragment_path, shader->fragment_string);
 
 	logger_log_string(SUCCESS, "Shaders loaded successfully.\n");

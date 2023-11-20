@@ -24,6 +24,7 @@ struct font
     int32_t image_width, image_height;
     int32_t char_padding;
     struct texture* bitmap;
+    float line_height;
 };
 
 struct ui_text
@@ -31,7 +32,7 @@ struct ui_text
     // Actual text stuff
     struct font* font;
     char* str;
-    int32_t str_len;
+    size_t str_len;
     struct vector2 position;
     float scale; // Scale of each letter
 
@@ -43,9 +44,9 @@ struct ui_text
     uint32_t* indices;
 };
 
-struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, int32_t len);
+struct ui_text* ui_text_init(struct font* font, struct rgba_color color, struct vector2 position, float scale, const char* str, size_t len);
 void ui_font_get_fnt_data(struct font* font, char* file);
-void ui_text_mod(struct ui_text* text, const char* str, int32_t length);
+void ui_text_mod(struct ui_text* text, struct rgba_color, const char* str, size_t length);
 void ui_text_render(struct ui_text* text);
 void ui_text_free(struct ui_text* text);
 

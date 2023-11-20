@@ -22,7 +22,7 @@ enum CAMERA_TYPE
 struct camera
 {
 	mat4 projection_mat, view_mat;
-	struct vector3 position;
+	struct vector2 position;
 	struct vector2 bounds;
 
 	enum CAMERA_TYPE type;

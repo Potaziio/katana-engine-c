@@ -66,6 +66,7 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transfom_m
 // Sprite2d batch simple
 void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity);
 void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity);
+void render_system_update_sprite2d_batch_vertices(struct sprite2d_batch_simple* batch);
 
 // Sprite2d batch complex
 void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_hashmap* batch_map, entity entity);

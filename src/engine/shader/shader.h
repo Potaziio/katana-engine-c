@@ -15,12 +15,12 @@ struct shader
 	char* vertex_string;
 	char* fragment_string;
 
-	int being_used;
+	uint8_t being_used;
 
-	unsigned int id;
+	uint32_t id;
 
-	int was_initialized;
-	int was_freed;
+	uint8_t was_initialized;
+	uint8_t was_freed;
 };
 
 int shader_load_and_compile(struct shader* shader, char* vertex_path, char* fragment_path);

@@ -11,7 +11,7 @@ struct textured_sprite2d_hashmap
 {
     entity* key;
     struct textured_sprite2d* value;
-    uint32_t size;
+    size_t size;
 };
 
 void textured_sprite2d_hashmap_create(struct textured_sprite2d_hashmap* map);

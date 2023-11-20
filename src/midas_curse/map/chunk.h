@@ -2,9 +2,10 @@
 #define CHUNK_H
 
 #include "../../engine/core/engine.h"
+#include "../../engine/render/line.h"
 
-#define CHUNK_WIDTH 8
-#define CHUNK_HEIGHT 6
+#define CHUNK_WIDTH 32
+#define CHUNK_HEIGHT 12
 #define CHUNK_TILE_SCALE 32
 
 extern struct texture map_atlas;
@@ -22,11 +23,11 @@ struct chunk
     entity id;
     struct sprite2d_batch_complex* batch;
     struct vector2 origin;
-    unsigned char enabled;
+    uint8_t enabled;
 };
 
 struct chunk* chunk_create(struct vector2 origin);
-void chunk_render(struct chunk* chunk);
+void chunk_update(struct chunk* chunk);
 
 #endif
 

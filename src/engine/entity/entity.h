@@ -28,7 +28,6 @@ struct transform
     struct vector2 position;
     struct vector2 scale;
     float rotation_angle;
-    uint8_t rotation_z;
     mat4 matrix;
 };
 
@@ -86,6 +85,7 @@ struct sprite2d_batch_simple
     struct rgba_color color;
     uint32_t batch_size;
     uint8_t was_initialized;
+    uint8_t active;
 };
 
 struct sprite2d_batch_complex
@@ -96,6 +96,7 @@ struct sprite2d_batch_complex
     struct texture* atlas;
     uint32_t batch_size;
     uint8_t was_initialized;
+    uint8_t active;
 };
 
 struct script 

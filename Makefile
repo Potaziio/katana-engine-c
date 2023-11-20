@@ -6,9 +6,9 @@ GLFW_LIB_DIR=$(INCLUDE_DIR)/GLFW/build/src/
 GLEW_LIB_DIR=$(INCLUDE_DIR)/GL/lib/
 BUILD_DIR=build
 LDFLAGS= -g -O0 -Wall -Wextra -pedantic -lpthread -ldl -lm $(GLEW_LIB_DIR)libGLEW.a $(GLFW_LIB_DIR)libglfw3.a 
+
 #List of directories containing source files
-# SRC_DIRS=src/app src/engine
-SRC_DIRS=src/engine src/midas_curse
+SRC_DIRS=src/engine src/flappy_bird
 
 # Create a list of source files in each directory
 SRC+=$(shell find $(SRC_DIRS) -type f -name '*.c')

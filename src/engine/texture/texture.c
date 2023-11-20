@@ -55,7 +55,7 @@ void texture_load(struct texture* texture, const char* path)
 	texture->loaded = 1;
 }
 
-unsigned int texture_get_id(struct texture texture)
+uint32_t texture_get_id(struct texture texture)
 { return texture.id; }
 
 void texture_bind(struct texture texture) 
@@ -70,15 +70,15 @@ const char* texture_get_path(struct texture texture)
 unsigned char* texture_get_data(struct texture texture)
 { return texture.data; } 
 
-int texture_get_width(struct texture texture)
+int32_t texture_get_width(struct texture texture)
 { return texture.width; }
 
-int texture_get_height(struct texture texture)
+int32_t texture_get_height(struct texture texture)
 { return texture.height; } 
 
 void texture_free(struct texture* texture)
 { glDeleteTextures(1, &texture->id); texture->loaded = 0; }
 
-int texture_is_good(struct texture* texture)
+uint8_t texture_is_good(struct texture* texture)
 { return texture->data != 0; } 
 

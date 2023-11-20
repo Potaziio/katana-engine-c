@@ -19,6 +19,8 @@
 #define RGBA_NORMALIZED_INT(x) (int)(x.r / 255), (int)(x.g / 255), (int)(x.b / 255), (int)(x.a / 255)
 #define RGBA_NORMALIZED(x) (x.r / 255), (x.g / 255), (x.b / 255), (x.a / 255)
 #define RGBA_UNPACK(x) x.r, x.g, x.b, x.a
+#define RGB_RANDOM rand_int(0, 255), rand_int(0, 255), rand_int(0, 255)
+#define RGBA_RANDOM rand_int(0, 255), rand_int(0, 255), rand_int(0, 255), rand_int(0, 255)
 
 struct rgba_color 
 {
@@ -29,5 +31,7 @@ struct rgb_color
 {
 	uint8_t r, g, b;
 };
+
+uint8_t colorcmp(struct rgba_color a, struct rgba_color b);
 
 #endif

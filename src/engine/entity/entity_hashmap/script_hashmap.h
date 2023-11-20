@@ -6,7 +6,7 @@
 struct script_hashmap {
     entity* key;
     struct script* value;
-    uint32_t size;
+    size_t size;
 };
 
 void script_hashmap_create(struct script_hashmap* map);

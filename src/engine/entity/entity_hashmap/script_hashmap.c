@@ -12,8 +12,11 @@ void script_hashmap_add(struct script_hashmap* map, entity key)
     map->key[map->size] = key;
     map->size++;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct script*)realloc(map->value, sizeof(struct script) * (map->size + 1));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct script) * (map->size + 1);
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct script*)realloc(map->value, value_size);
 }
 
 void script_hashmap_pop(struct script_hashmap* map, entity key)
@@ -51,8 +54,13 @@ void script_hashmap_pop(struct script_hashmap* map, entity key)
 
     map->size--;
 
-    map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
-    map->value = (struct script*)realloc(map->value, (map->size + 1) * sizeof(struct script));
+    size_t key_size = (map->size + 1) * sizeof(entity);
+    size_t value_size = sizeof(struct script) * (map->size + 1);
+
+
+
+    map->key = (entity*)realloc(map->key, key_size);
+    map->value = (struct script*)realloc(map->value, value_size);
 
 }
 

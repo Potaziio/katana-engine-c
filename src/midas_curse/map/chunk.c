@@ -5,9 +5,9 @@ struct texture map_atlas;
 
 struct chunk* chunk_create(struct vector2 origin)
 {
-    logger_log_string(LOG, "Attempting to create chunk at: ");
-    printf("(%f, %f)\n", origin.x, origin.y);
-    
+    /* logger_log_string(LOG, "Attempting to create chunk at: "); */
+    /* printf("(%f, %f)\n", origin.x, origin.y); */
+   
     struct chunk* chunk = (struct chunk*)malloc(sizeof(struct chunk));
     if (chunk == NULL)
     {
@@ -18,9 +18,15 @@ struct chunk* chunk_create(struct vector2 origin)
     chunk->id = engine_create_entity(global_engine, SPRITE2D_BATCH_COMPLEX);
     chunk->batch = ENTITY_GET_SPRITE2D_BATCH_COMPLEX(chunk->id);
     chunk->batch->batch_size = CHUNK_WIDTH * CHUNK_HEIGHT;
-    chunk->batch->vertices = (struct textured_rectangle_sprite_vertex*)malloc(sizeof(struct textured_rectangle_sprite_vertex) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_VERTEX_NUM);
-    chunk->batch->indices = (uint32_t*)malloc(sizeof(uint32_t) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_INDEX_NUM);
+
+    size_t chunk_vert_alloc_size = sizeof(struct textured_rectangle_sprite_vertex) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_VERTEX_NUM;
+    size_t chunk_ind_alloc_size = sizeof(uint32_t) * CHUNK_WIDTH * CHUNK_HEIGHT * SPRITE2D_INDEX_NUM;
+
+    chunk->batch->vertices = (struct textured_rectangle_sprite_vertex*)malloc(chunk_vert_alloc_size);
+    chunk->batch->indices = (uint32_t*)malloc(chunk_ind_alloc_size);
     chunk->batch->atlas = &map_atlas;
+    chunk->batch->active = 1;
+    chunk->origin = origin;
 
     int32_t v_index = 0;
     int32_t ind_index = 0;
@@ -79,5 +85,14 @@ struct chunk* chunk_create(struct vector2 origin)
     chunk->enabled = 1;
 
     return chunk;
+}
+
+void chunk_update(struct chunk* chunk)
+{
+    chunk->batch = ENTITY_GET_SPRITE2D_BATCH_COMPLEX(chunk->id);
+
+    // Chunk is out of camera bounds
+    chunk->batch->active = !(chunk->origin.x + CHUNK_TILE_SCALE * CHUNK_WIDTH < engine_camera.position.x || 
+                           chunk->origin.x > engine_camera.position.x + engine_camera.bounds.x);
 }
 

@@ -11,7 +11,7 @@ struct debug_line_hashmap
 {
     entity* key;
     struct debug_line* value;
-    uint32_t size;
+    size_t size;
 };
 
 void debug_line_hashmap_create(struct debug_line_hashmap* map);

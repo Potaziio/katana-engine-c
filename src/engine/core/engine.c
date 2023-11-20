@@ -31,7 +31,7 @@ int8_t engine_init(struct engine* engine_ptr)
 
 	engine_ptr->delta_time = 0.0f;
 
-	engine_camera.position = (struct vector3){0.0f, 0.0f, 0.0f};
+	engine_camera.position = vector2_zero();
 	engine_camera.type = CAMERA_ORTHOGRAPHIC;
 
 	engine_camera.bounds = (struct vector2){engine_ptr->engine_window.width, engine_ptr->engine_window.height};
@@ -142,10 +142,10 @@ void engine_update(struct engine* engine_ptr)
 {
 	// TODO: Separate into files
 	
-	float start_time = engine_get_mills();
+	double start_time = engine_get_mills();
 
 	// for fps calculations
-	float prev_time = engine_get_mills();
+	double prev_time = engine_get_mills();
 
 	while (!window_should_close(&engine_ptr->engine_window))
 	{
@@ -305,9 +305,19 @@ void engine_update(struct engine* engine_ptr)
 
 void engine_time_end_frame(struct engine* engine_ptr, double* start_time)
 {
-	engine_ptr->delta_time = 1 / 60.0f;
-	/* engine_ptr->delta_time = engine_get_mills() - *start_time; */
-	/* *start_time = engine_get_mills(); */
+	/* engine_ptr->delta_time = 1 / 75.0f; */
+
+	double delta = engine_get_mills() - *start_time;
+	
+	if (delta > ENGINE_MIN_DELTA_MS / 1000.0)
+	{
+		logger_log_string(LOG, "Halt\n");
+		delta = 0;
+	}
+
+	engine_ptr->delta_time = delta;
+
+	*start_time = engine_get_mills();
 }
 
 int8_t engine_end(struct engine* engine_ptr)
@@ -533,27 +543,41 @@ void engine_pop_entity(struct engine *engine, entity e)
 
 void* engine_get_entity_component(struct engine* engine, entity ent, unsigned int component)
 {
-	if (ENTITY_ARRAY[ent > 0 ? ent - 1 : 0] == 0) 
+	// Check entity array at index, to check if entity exists
+	// Since our arrays are 0 indexed and our entity ids start at 1 we substract one if our entity id is more than
+	if (ENTITY_ARRAY[ent - 1] == 0) 
 	{
 		logger_log_string(ERROR, "Trying to get component of non-existent entity\n");
 		return NULL;
 	}
 
-	// Return a void pointer that is to be casted to the specific type
-	if (component & TRANSFORM)
-		return (void*)transform_hashmap_get(&engine->transform_components, ent);
-	else if (component & SPRITE2D)
-		return (void*)sprite2d_hashmap_get(&engine->sprite2d_components, ent);
-	else if (component & TEXTURED_SPRITE2D)
-		return (void*)textured_sprite2d_hashmap_get(&engine->textured_sprite2d_components, ent);
-	else if (component & SPRITE2D_BATCH_SIMPLE)
-		return (void*)sprite2d_batch_simple_hashmap_get(&engine->sprite2d_batch_simple_components, ent);
-	else if (component & DEBUG_LINE)
-		return (void*)debug_line_hashmap_get(&engine->debug_line_components, ent);
-	else if (component & SCRIPT)
-		return (void*)script_hashmap_get(&engine->script_components, ent);
-	else if (component & SPRITE2D_BATCH_COMPLEX)
-		return (void*)sprite2d_batch_complex_hashmap_get(&engine->sprite2d_batch_complex_components, ent);
+	switch (component)
+	{
+		case TRANSFORM:
+			return (void*)transform_hashmap_get(&engine->transform_components, ent);
+			break;
+		case SPRITE2D:
+			return (void*)sprite2d_hashmap_get(&engine->sprite2d_components, ent);
+			break;
+		case TEXTURED_SPRITE2D:
+			return (void*)textured_sprite2d_hashmap_get(&engine->textured_sprite2d_components, ent);
+			break;
+		case SPRITE2D_BATCH_SIMPLE:
+			return (void*)sprite2d_batch_simple_hashmap_get(&engine->sprite2d_batch_simple_components, ent);
+			break;
+		case DEBUG_LINE:
+			return (void*)debug_line_hashmap_get(&engine->debug_line_components, ent);
+			break;
+		case SCRIPT:
+			return (void*)script_hashmap_get(&engine->script_components, ent);
+			break;
+		case SPRITE2D_BATCH_COMPLEX:
+			return (void*)sprite2d_batch_complex_hashmap_get(&engine->sprite2d_batch_complex_components, ent);
+			break;
+	}
+
+	logger_log_string(ERROR, "Entity has no component of that type");
+	printf("- Entity: %d\n", ent);
 	
 	return NULL;
 }

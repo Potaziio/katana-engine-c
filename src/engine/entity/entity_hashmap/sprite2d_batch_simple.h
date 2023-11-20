@@ -11,7 +11,7 @@ struct sprite2d_batch_simple_hashmap
 {
     entity* key;
     struct sprite2d_batch_simple* value;
-    uint32_t size;
+    size_t size;
 };
 
 void sprite2d_batch_simple_hashmap_create(struct sprite2d_batch_simple_hashmap* map);
