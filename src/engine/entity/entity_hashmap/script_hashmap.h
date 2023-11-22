@@ -2,6 +2,7 @@
 #define SCRIPT_HASHMAP_H
 
 #include "../entity.h"
+#include <string.h>
 
 struct script_hashmap {
     entity* key;

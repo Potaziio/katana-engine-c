@@ -52,6 +52,7 @@ void flappy_update(void)
 	switch (ui_menu_get_option_on_click(&main_menu))
 	{
 		case MAIN_MENU_PLAY:
+			(ENTITY_GET_TRANSFORM(state.player->id))->rotation_angle = 0.0f;
 			state.game_state = GAME_STATE_START;
 			main_menu.active = UI_MENU_DISABLED;
 			break;
@@ -68,6 +69,8 @@ void flappy_update(void)
 		
 	if (state.game_state == GAME_STATE_START)
 		player_update(&flappy_bird);
+	else
+		(ENTITY_GET_TRANSFORM(state.player->id))->rotation_angle += global_engine->delta_time * 100;
 
 	ui_menu_render(&main_menu);
 	ui_text_render(flappy_bird.score_text);

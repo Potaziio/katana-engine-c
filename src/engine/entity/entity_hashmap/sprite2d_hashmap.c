@@ -14,6 +14,9 @@ void sprite2d_hashmap_add(struct sprite2d_hashmap* map, entity key)
 
     map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
     map->value = (struct sprite2d*)realloc(map->value, sizeof(struct sprite2d) * (map->size + 1));
+
+    if (map->key == NULL || map->value == NULL)
+        logger_log_string(ERROR, "Reallocation of sprite map failed, add\n");
 }
 
 void sprite2d_hashmap_pop(struct sprite2d_hashmap* map, entity key)
@@ -42,8 +45,8 @@ void sprite2d_hashmap_pop(struct sprite2d_hashmap* map, entity key)
     {
         for (uint32_t i = index + 1; i < map->size; i++)
         {
-            map->value[i - 1] = map->value[i];
-            map->key[i - 1] = map->key[i];
+            map->value = memmove((map->value + (i - 1)), (map->value + i), sizeof(struct sprite2d)); 
+            map->key = memmove((map->key + (i - 1)), (map->key + i), sizeof(entity)); 
         }
     }
 
@@ -51,6 +54,9 @@ void sprite2d_hashmap_pop(struct sprite2d_hashmap* map, entity key)
 
     map->key = (entity*)realloc(map->key, (map->size + 1) * sizeof(entity));
     map->value = (struct sprite2d*)realloc(map->value, (map->size + 1) * sizeof(struct sprite2d));
+
+    if (map->key == NULL || map->value == NULL)
+        logger_log_string(ERROR, "Reallocation of sprite map failed, add\n");
 }
 
 void sprite2d_hashmap_free(struct sprite2d_hashmap* map)
@@ -73,6 +79,8 @@ struct sprite2d* sprite2d_hashmap_get(struct sprite2d_hashmap* map, entity key)
     for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
+
+    logger_log_string(ERROR, "Returning null from sprite2d_hashmap_get\n");
 
     return NULL;
 }

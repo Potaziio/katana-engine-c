@@ -21,7 +21,7 @@ struct shader* _render_font_shader;
 struct texture* _render_font_default_texture;
 struct shader* _render_batch_complex_shader;
 
-void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map,  entity entity)
+void render_system_init_sprite2d(struct sprite2d_hashmap* sprite2d_map,  entity entity)
 {
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
 
@@ -88,6 +88,7 @@ void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct
 void render_system_render_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
+
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
 
 	if (sprite == NULL || transform == NULL)
@@ -95,6 +96,8 @@ void render_system_render_sprite2d(struct transform_hashmap* transform_map, stru
 		logger_log_string(ERROR, "Render: Bad access\n");
 		return;
 	}
+
+	if (sprite->config & SPRITE2D_DISABLED && !(sprite->config & SPRITE2D_ENABLED)) return;
 
 	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
 	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
@@ -146,7 +149,7 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void render_system_init_textured_sprite2d(struct transform_hashmap* transform_map, struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
+void render_system_init_textured_sprite2d(struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
 
@@ -220,6 +223,7 @@ void render_system_init_textured_sprite2d(struct transform_hashmap* transform_ma
 void render_system_render_textured_sprite2d(struct transform_hashmap* transform_map, struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
+
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
 
 	if (sprite == NULL || transform == NULL)
@@ -227,6 +231,8 @@ void render_system_render_textured_sprite2d(struct transform_hashmap* transform_
 		logger_log_string(ERROR, "Render: Bad access\n");
 		return;
 	}
+
+	if (sprite->config & SPRITE2D_DISABLED && !(sprite->config & SPRITE2D_ENABLED)) return;
 
 	vec3 glm_pos_vec = {transform->position.x, transform->position.y, 0.0f};
 	vec3 glm_scale_vec = {transform->scale.x, transform->scale.y, 0.0f};
@@ -332,13 +338,13 @@ void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_has
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
 
-	if (!batch->active) return;
-
 	if (batch == NULL)
 	{
 		logger_log_string(ERROR, "Render: Bad access\n");
 		return;
 	}
+
+	if (!batch->active) return;
 
 	glBindVertexArray(batch->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);

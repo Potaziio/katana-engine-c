@@ -55,12 +55,12 @@ extern struct shader* _render_batch_complex_shader;
 extern struct texture* _render_font_default_texture;
 
 // Sprite2d
-void render_system_init_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map,  entity entity);
+void render_system_init_sprite2d(struct sprite2d_hashmap* sprite2d_map,  entity entity);
 void render_system_render_sprite2d(struct transform_hashmap* transfom_map, struct sprite2d_hashmap* sprite2d_map, entity entity);
 void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, entity entity);
 
 // Textured sprite2d
-void render_system_init_textured_sprite2d(struct transform_hashmap* transform_map, struct textured_sprite2d_hashmap* sprite2d_map,  entity entity);
+void render_system_init_textured_sprite2d(struct textured_sprite2d_hashmap* sprite2d_map,  entity entity);
 void render_system_render_textured_sprite2d(struct transform_hashmap* transfom_map, struct textured_sprite2d_hashmap* sprite2d_map, entity entity);
 
 // Sprite2d batch simple

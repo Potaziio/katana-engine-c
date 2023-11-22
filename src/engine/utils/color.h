@@ -34,4 +34,6 @@ struct rgb_color
 
 uint8_t colorcmp(struct rgba_color a, struct rgba_color b);
 
+struct rgba_color rgba_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
 #endif

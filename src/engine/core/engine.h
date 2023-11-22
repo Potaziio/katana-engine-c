@@ -94,9 +94,9 @@ void engine_update(struct engine* engine_ptr);
 int8_t engine_end(struct engine* engine_ptr);
 
 // ECS
-entity engine_create_entity(struct engine* engine, unsigned int components);
+entity engine_create_entity(struct engine* engine, uint32_t components);
 void engine_pop_entity(struct engine* engine, entity e);
-void* engine_get_entity_component(struct engine* engine, entity ent, unsigned int component);
+void* engine_get_entity_component(struct engine* engine, entity ent, uint32_t component);
 int8_t engine_has_entity(struct engine* engine, entity e);
 
 // CALLBACKS

@@ -23,8 +23,7 @@ int32_t rand_int(int32_t min, int32_t max)
 { return (rand() % (max - min)) + min; }
 
 float fclamp(float min, float max, float val)
-{
-	return val < min ? min : val > max ? max : val;
+{ return val < min ? min : val > max ? max : val; }
 
-}
-
+double deg_2_rad(double deg)
+{ return deg * (KAT_PI / 180); }

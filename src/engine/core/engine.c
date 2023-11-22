@@ -1,6 +1,7 @@
 #include "engine.h"
 
 // TODO: Separate this by files (Render, ECS)
+// TODO: Fix scripts n shit
 
 struct engine* global_engine;
 struct camera engine_camera;
@@ -113,11 +114,11 @@ int8_t engine_init(struct engine* engine_ptr)
 
 	// Initialize all entities with sprites
 	for (uint32_t i = 0; i < engine_ptr->sprite2d_components.size; i++)
-		render_system_init_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
+		render_system_init_sprite2d(&engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 
 	// Initialize all entities with textured sprites
 	for (uint32_t i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
-		render_system_init_textured_sprite2d(&engine_ptr->transform_components, &engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
+		render_system_init_textured_sprite2d(&engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
 
 	// Initialize all entities with spritebatch sprites
 	for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
@@ -160,19 +161,16 @@ void engine_update(struct engine* engine_ptr)
 		engine_fps_counter++;
 
 		for (uint32_t i = 0; i < engine_ptr->sprite2d_components.size; i++)
-			render_system_init_sprite2d(&engine_ptr->transform_components, &engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
+			render_system_init_sprite2d(&engine_ptr->sprite2d_components, engine_ptr->sprite2d_components.key[i]);
 
 		for (uint32_t i = 0; i < engine_ptr->textured_sprite2d_components.size; i++)
-			render_system_init_textured_sprite2d(&engine_ptr->transform_components, &engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
+			render_system_init_textured_sprite2d(&engine_ptr->textured_sprite2d_components, engine_ptr->textured_sprite2d_components.key[i]);
 
 		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_simple_components.size; i++)
 			render_system_init_sprite2d_batch_simple(&engine_ptr->sprite2d_batch_simple_components, engine_ptr->sprite2d_batch_simple_components.key[i]);
 
 		for (uint32_t i = 0; i < engine_ptr->debug_line_components.size; i++)
 			render_system_init_debug_line(&engine_ptr->debug_line_components, engine_ptr->debug_line_components.key[i]);
-
-		for (uint32_t i = 0; i < engine_ptr->script_components.size; i++)
-			script_system_update(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
 
 		for (uint32_t i = 0; i < engine_ptr->sprite2d_batch_complex_components.size; i++)
 			render_system_init_sprite2d_batch_complex(&engine_ptr->sprite2d_batch_complex_components, engine_ptr->sprite2d_batch_complex_components.key[i]);
@@ -261,6 +259,9 @@ void engine_update(struct engine* engine_ptr)
 		{
 			logger_log_string(ERROR, "No app update function set\n");
 		}
+
+		for (uint32_t i = 0; i < engine_ptr->script_components.size; i++)
+			script_system_update(&engine_ptr->script_components, engine_ptr->script_components.key[i]);
 
 		// Exit on escape
 		if (input_get_key_down(GLFW_KEY_ESCAPE))
@@ -354,12 +355,13 @@ int8_t engine_end(struct engine* engine_ptr)
 	script_hashmap_free(&engine_ptr->script_components);
 	sprite2d_batch_complex_hashmap_free(&engine_ptr->sprite2d_batch_complex_components);
 
-	engine_ptr->app_end_func();
+	if (engine_ptr->app_end_func != NULL)
+		engine_ptr->app_end_func();
 		
 	return 1;
 }
 
-entity engine_create_entity(struct engine* engine, unsigned int components)
+entity engine_create_entity(struct engine* engine, uint32_t components)
 {
 	if (engine->entity_num >= ENGINE_MAX_ENTITIES)
 	{	
@@ -401,7 +403,7 @@ entity engine_create_entity(struct engine* engine, unsigned int components)
 		sprite2d_hashmap_add(&engine->sprite2d_components, ent);
 		struct sprite2d* sprite = ENTITY_GET_SPRITE2D(ent);
 		*sprite = (struct sprite2d){0};
-		sprite->config = SPRITE2D_CENTERED;
+		sprite->config = SPRITE2D_CENTERED | SPRITE2D_ENABLED;
 	}
 	if (components & TEXTURED_SPRITE2D)
 	{
@@ -452,10 +454,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 	// Our entities start with id 1 so the index is 0 if its the first entity
 	int entity_index = e > 1 ? e - 1 : 0;
 
-	if (engine->entities[entity_index] == 0) return;
-
-	// Goes through all entities looking for the entity we are trying to remove
-	if (engine->entities[entity_index] != e) return;
+	if (engine->entities[entity_index] == 0 || engine->entities[entity_index] != e) return;
 
 	if (!(engine->config & ENGINE_SILENCE_ENTITY_LOG))
 	{
@@ -541,7 +540,7 @@ void engine_pop_entity(struct engine *engine, entity e)
 	engine->entity_num--;
 }
 
-void* engine_get_entity_component(struct engine* engine, entity ent, unsigned int component)
+void* engine_get_entity_component(struct engine* engine, entity ent, uint32_t component)
 {
 	// Check entity array at index, to check if entity exists
 	// Since our arrays are 0 indexed and our entity ids start at 1 we substract one if our entity id is more than

@@ -17,6 +17,9 @@ void script_hashmap_add(struct script_hashmap* map, entity key)
 
     map->key = (entity*)realloc(map->key, key_size);
     map->value = (struct script*)realloc(map->value, value_size);
+
+    if (map->key == NULL || map->value == NULL)
+        logger_log_string(ERROR, "Reallocation of script map failed, add\n");
 }
 
 void script_hashmap_pop(struct script_hashmap* map, entity key)
@@ -41,8 +44,8 @@ void script_hashmap_pop(struct script_hashmap* map, entity key)
     {
         for (uint32_t i = index + 1; i < map->size; i++)
         {
-            map->value[i - 1] = map->value[i];
-            map->key[i - 1] = map->key[i];
+            map->value = memmove((map->value + (i - 1)), (map->value + i), sizeof(struct script)); 
+            map->key = memmove((map->key + (i - 1)), (map->key + i), sizeof(entity)); 
         }
     }
 
@@ -57,10 +60,11 @@ void script_hashmap_pop(struct script_hashmap* map, entity key)
     size_t key_size = (map->size + 1) * sizeof(entity);
     size_t value_size = sizeof(struct script) * (map->size + 1);
 
-
-
     map->key = (entity*)realloc(map->key, key_size);
     map->value = (struct script*)realloc(map->value, value_size);
+
+    if (map->key == NULL || map->value == NULL)
+        logger_log_string(ERROR, "Reallocation of script map failed, pop\n");
 
 }
 
@@ -76,6 +80,8 @@ struct script* script_hashmap_get(struct script_hashmap* map, entity key)
     for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
+
+    logger_log_string(ERROR, "Script returning null, script_hashmap_get\n");
 
     return NULL;
 }

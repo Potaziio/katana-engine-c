@@ -31,17 +31,21 @@ void texture_load(struct texture* texture, const char* path)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		if (texture->channels == 3) {
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture->data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		} else if (texture->channels == 4) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->data);
-			glGenerateMipmap(GL_TEXTURE_2D);
-		} else {
-			logger_log_string(ERROR, "Texture uknown file format: ");
-			printf("%s\n", path);
-			exit(EXIT_FAILURE);
+		switch (texture->channels)
+		{
+			case 3:
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, texture->data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				break;
+			case 4: 
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				break;
+			default: 
+				logger_log_string(ERROR, "Texture uknown file format: ");
+				printf("%s\n", path);
+				break;
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);

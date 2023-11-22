@@ -17,6 +17,9 @@ void textured_sprite2d_hashmap_add(struct textured_sprite2d_hashmap* map, entity
 
     map->key = (entity*)realloc(map->key, key_size);
     map->value = (struct textured_sprite2d*)realloc(map->value, value_size);
+
+    if (map->key == NULL || map->value == NULL)
+        logger_log_string(ERROR, "Reallocation of textured_sprite map failed, add\n");
 }
 
 void textured_sprite2d_hashmap_pop(struct textured_sprite2d_hashmap* map, entity key)
@@ -45,8 +48,8 @@ void textured_sprite2d_hashmap_pop(struct textured_sprite2d_hashmap* map, entity
     {
         for (uint32_t i = index + 1; i < map->size; i++)
         {
-            map->value[i - 1] = map->value[i];
-            map->key[i - 1] = map->key[i];
+            map->value = memmove((map->value + (i - 1)), (map->value + i), sizeof(struct textured_sprite2d)); 
+            map->key = memmove((map->key + (i - 1)), (map->key + i), sizeof(entity)); 
         }
     }
 
@@ -79,6 +82,8 @@ struct textured_sprite2d* textured_sprite2d_hashmap_get(struct textured_sprite2d
     for (uint32_t i = 0; i < map->size; i++)
         if (map->key[i] == key)
             return &map->value[i];
+
+    logger_log_string(ERROR, "Returning null from textured_sprite2d_hashmap_get\n");
 
     return NULL;
 }

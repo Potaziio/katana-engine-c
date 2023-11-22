@@ -3,12 +3,12 @@
 void script_system_start(struct script_hashmap* script_map, entity e)
 {
 	struct script* script = script_hashmap_get(script_map, e);
+
 	if (script == NULL) 
 	{
 		logger_log_string(ERROR, "Script: bad access\n");
 		return;
 	}
-
 
 	if (script->start != NULL)
 		script->start(e);

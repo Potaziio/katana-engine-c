@@ -20,7 +20,7 @@
 #define WALL_CENTER_PADDING 300
 
 // Horizontal speed of the wall 
-#define WALL_SPEED 400
+#define WALL_SPEED 300
 
 // Wall padding from left of screen when it wraps around
 #define WALL_WRAP_LEFT_PADDING 50

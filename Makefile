@@ -8,7 +8,7 @@ BUILD_DIR=build
 LDFLAGS= -g -O0 -Wall -Wextra -pedantic -lpthread -ldl -lm $(GLEW_LIB_DIR)libGLEW.a $(GLFW_LIB_DIR)libglfw3.a 
 
 #List of directories containing source files
-SRC_DIRS=src/engine src/flappy_bird
+SRC_DIRS=src/engine src/atari_combat
 
 # Create a list of source files in each directory
 SRC+=$(shell find $(SRC_DIRS) -type f -name '*.c')

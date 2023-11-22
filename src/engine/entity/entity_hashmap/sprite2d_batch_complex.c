@@ -66,7 +66,7 @@ void sprite2d_batch_complex_hashmap_pop(struct sprite2d_batch_complex_hashmap* m
 
 void sprite2d_batch_complex_hashmap_free(struct sprite2d_batch_complex_hashmap* map)
 {
-    logger_log_string(WARNING, "Freeing sprite2D map memory!!\n");
+    logger_log_string(WARNING, "Freeing sprite2D_batch_complex map memory!!\n");
 
     for (uint32_t i = 0; i < map->size; i++)
     {

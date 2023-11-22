@@ -13,6 +13,8 @@
 #define SPRITE2D_CENTERED 1
 #define SPRITE2D_TOP_LEFT 2
 #define SPRITE2D_WIREFRAME 4
+#define SPRITE2D_ENABLED 8
+#define SPRITE2D_DISABLED 16
 
 #include "../math/vector/vector2.h"
 #include "../math/vector/vector3.h"
@@ -45,7 +47,6 @@ struct sprite2d
     uint32_t indices[6];
     int8_t was_initialized;
     uint8_t config;
-
 };
 
 struct line_vertex

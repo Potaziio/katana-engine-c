@@ -7,6 +7,8 @@
 #include "../../../../include/GLFW/include/GLFW/glfw3.h"
 #include "../../../../include/GL/include/GL/glew.h"
 
+#include <string.h>
+
 struct textured_sprite2d_hashmap
 {
     entity* key;

@@ -3,10 +3,10 @@
 
 #include "../../engine/core/engine.h"
 
-#define GRAVITY 1200.0f
+#define GRAVITY 1600.0f
 #define PLAYER_X_ORIGIN 400
 #define PLAYER_SCALE 42
-#define PLAYER_JUMP_POWER -430
+#define PLAYER_JUMP_POWER -500
 #define POWERUP_TIME 10
 #define POWERUP_BONUS 2
 
