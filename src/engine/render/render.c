@@ -25,12 +25,6 @@ void render_system_init_sprite2d(struct sprite2d_hashmap* sprite2d_map,  entity 
 {
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
 
-	if (sprite == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
-
 	if (sprite->was_initialized) return;
 
 	if (sprite->config & SPRITE2D_CENTERED)
@@ -88,14 +82,8 @@ void render_system_init_sprite2d(struct sprite2d_hashmap* sprite2d_map,  entity 
 void render_system_render_sprite2d(struct transform_hashmap* transform_map, struct sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
-
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
 
-	if (sprite == NULL || transform == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (sprite->config & SPRITE2D_DISABLED && !(sprite->config & SPRITE2D_ENABLED)) return;
 
@@ -135,12 +123,6 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 
 	struct sprite2d* sprite = sprite2d_hashmap_get(sprite2d_map, entity);
 
-	if (sprite == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
-
 	for (int i = 0; i < SPRITE2D_VERTEX_NUM; i++)
 		sprite->vertices[i].color = sprite->color;
 
@@ -152,12 +134,6 @@ void render_system_update_sprite2d_verts(struct sprite2d_hashmap* sprite2d_map, 
 void render_system_init_textured_sprite2d(struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
-
-	if (sprite == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (sprite->was_initialized) return;
 
@@ -223,14 +199,7 @@ void render_system_init_textured_sprite2d(struct textured_sprite2d_hashmap* spri
 void render_system_render_textured_sprite2d(struct transform_hashmap* transform_map, struct textured_sprite2d_hashmap* sprite2d_map, entity entity)
 {
 	struct textured_sprite2d* sprite = textured_sprite2d_hashmap_get(sprite2d_map, entity);
-
 	struct transform* transform = transform_hashmap_get(transform_map, entity);
-
-	if (sprite == NULL || transform == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (sprite->config & SPRITE2D_DISABLED && !(sprite->config & SPRITE2D_ENABLED)) return;
 
@@ -305,12 +274,6 @@ void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashm
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
 	
-	if (batch == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
-
 	if (batch->was_initialized) return;
 
 	glGenBuffers(1, &batch->vbo);
@@ -337,12 +300,6 @@ void render_system_init_sprite2d_batch_simple(struct sprite2d_batch_simple_hashm
 void render_system_render_sprite2d_batch_simple(struct sprite2d_batch_simple_hashmap* batch_map, entity entity)
 {
 	struct sprite2d_batch_simple* batch = sprite2d_batch_simple_hashmap_get(batch_map, entity);
-
-	if (batch == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (!batch->active) return;
 
@@ -375,11 +332,6 @@ void render_system_init_sprite2d_batch_complex(struct sprite2d_batch_complex_has
 {
 	struct sprite2d_batch_complex* batch = sprite2d_batch_complex_hashmap_get(batch_map, entity);
 
-	if (batch == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (batch->was_initialized) return;
 
@@ -411,11 +363,6 @@ void render_system_render_sprite2d_batch_complex(struct sprite2d_batch_complex_h
 
 	if (!batch->active) return;
 
-	if (batch == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	texture_bind(*batch->atlas);
 
@@ -440,12 +387,6 @@ void render_system_render_sprite2d_batch_complex(struct sprite2d_batch_complex_h
 void render_system_init_debug_line(struct debug_line_hashmap* line_map, entity entity)
 {
 	struct debug_line* line = debug_line_hashmap_get(line_map, entity);
-
-	if (line == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	if (line->was_initialized) return;
 
@@ -477,12 +418,6 @@ void render_system_update_debug_line(struct debug_line_hashmap* line_map, entity
 void render_system_render_debug_line(struct debug_line_hashmap* line_map, entity entity)
 {
 	struct debug_line* line = debug_line_hashmap_get(line_map, entity);
-
-	if (line == NULL)
-	{
-		logger_log_string(ERROR, "Render: Bad access\n");
-		return;
-	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, line->vbo);
 	glBindVertexArray(line->vao);

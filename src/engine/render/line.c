@@ -38,7 +38,7 @@ void line_create_verts(struct sprite2d_batch_simple* batch, struct vector2 p1, s
 struct line line_create(struct vector2 p1, struct vector2 p2, struct rgba_color color, float width)
 {
     struct line line;
-    line.id = engine_create_entity(global_engine, SPRITE2D_BATCH_SIMPLE);
+    line.id = engine_create_entity(global_engine->ecs, SPRITE2D_BATCH_SIMPLE);
     struct sprite2d_batch_simple* batch = ENTITY_GET_SPRITE2D_BATCH_SIMPLE(line.id);
 
     line.p1 = p1;
@@ -77,4 +77,4 @@ struct line line_update(struct line* line)
 }
 
 void line_destroy(uint32_t id)
-{ engine_pop_entity(global_engine, id); }
+{ engine_pop_entity(global_engine->ecs, id); }

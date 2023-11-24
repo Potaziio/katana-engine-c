@@ -16,7 +16,7 @@ int main(void)
 		.width = 800, 
 		.height = 600,
 		.title = "Katana Engine (dev 0.0)",
-		.color = {RGBA_GREEN},
+		.color = {170, 232, 53, 255},
 	};
 
 	if (engine_init(&app_engine))
